@@ -6,13 +6,12 @@ import java.awt.swing;
 
 public class classOne {
 
-   public static void main (String[] args) {
+   public static void main(String[] args) {
 
       System.out.printf("Hello. I hate the world.\n");
 
    }
     
-
     public static int get2() {
         return 2;
     }
