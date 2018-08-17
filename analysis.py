@@ -26,33 +26,28 @@ def error_msg(report, prefix):
     fin = msg[index+len(prefix)+1:]
     return fin
 
-# TODO: refactor check functions
-def check_tabs_spaces(counters, report):
-    print("Tabs vs. Spaces Errors:")
+def check_errors(counters, report, header, macro, clean):
+    print("{} Errors:".format(header))
     has_errs = False
-    for err in TABS_SPACES_ERRORS:
+    for err in macro:
         if err in counters:
             has_errs = True
             print("    {}, {} occurrence(s): {}".format(err, counters[err], error_msg(report, err)))
     if not has_errs:
-        print("    None. Space-indented statements conform to PEP8.")
+        print("    None. {} statements conform to PEP8.".format(clean))
+
+def check_tabs_spaces(counters, report):
+    check_errors(counters, report, "Tabs vs. Spaces", TABS_SPACES_ERRORS, "Space-indented")
 
 def check_imports(counters, report):
-    print("Import Statement Errors:")
-    has_errs = False
-    for err in IMPORT_ERRORS:
-        if err in counters:
-            has_errs = True
-            print("    {}, {} occurrence(s): {}".format(err, counters[err], error_msg(report, err)))
-    if not has_errs:
-        print("    None. Import statements conform to PEP8.")
+    check_errors(counters, report, "Import Statement", IMPORT_ERRORS, "Import")
 
 
 def main():
     # Collect the PEP8 reported errors according to pycodestyle.
     sg = StyleGuide()
     breport = BaseReport(options=sg.options)
-    quiet_checker = Checker("messy/clean.py", report=breport)
+    quiet_checker = Checker("messy/hodgepodge.py", report=breport)
     quiet_checker.check_all()
     counters = breport.counters
     print(counters)  # TODO: delete this
