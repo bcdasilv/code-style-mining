@@ -1,6 +1,9 @@
 from pydriller import GitRepository
+import sys
 from pycodestyle import *
 
+# TODO: check trailing whitespace? W291, W292, W293, W391
+# TODO: W503, W504? says not enforced by PEP8?
 INDENT_ERRORS = ["E111", "E112", "E113", "E121", "E122", "E123", "E124",
                  "E125", "E126", "E127", "E128", "E129", "E131", "E133"]
 TABS_SPACES_ERRORS = ["E101", "E223", "E224", "E242", "E273", "E274", "W191"]
@@ -53,7 +56,6 @@ def check_tabs_spaces(counters, report):
 def check_line_length(counters, report):
     check_errors(counters, report, "Line Length", LINE_LENGTH_ERRORS, "Line length of")
 
-# TODO: write wiki for blank lines
 def check_blank_lines(counters, report):
     check_errors(counters, report, "Blank Line", BLANK_LINE_ERRORS, "Blank line")
 
@@ -61,15 +63,23 @@ def check_imports(counters, report):
     check_errors(counters, report, "Import Statement", IMPORT_ERRORS, "Import")
 
 
-def main():
+def main(argv):
+    # TODO: error-check input
+    print(type(argv))
+    print(argv)
+    # TODO: clean up
+    file_name = argv[0]
     # Collect the PEP8 reported errors according to pycodestyle.
     sg = StyleGuide()
     breport = BaseReport(options=sg.options)
-    quiet_checker = Checker("messy/clean.py", report=breport)
+    quiet_checker = Checker(file_name, report=breport)
     quiet_checker.check_all()
     counters = breport.counters
     print(counters)  # TODO: delete this
     print()
+
+    # TODO: if a runtime error is thrown (E901, E902), still analyze the rest?
+
     # Divide the errors into categories
     check_indents(counters, breport)
     check_tabs_spaces(counters, breport)
@@ -82,4 +92,6 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    #main()
+    main(sys.argv[1:])
+    #main("messy/hodgepodge.py")
