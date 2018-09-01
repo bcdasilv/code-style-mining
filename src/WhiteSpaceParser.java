@@ -1,12 +1,11 @@
 import java.util.List;
+import java.util.ArrayList;
 
 import com.github.javaparser.ast.body.MethodDeclaration;
 
 public class WhiteSpaceParser {
 
-	private static ParsingHelper ph = new ParsingHelper();
-	
-	public void parseMethodWhiteSpace(String[] linesOfFile, int methodBodyLength,
+	public boolean parseWhiteSpaceBetweenMethods(String[] linesOfFile, int methodBodyLength,
 			int i, List<MethodDeclaration> methods) {
 		
 		int startLine = 0;
@@ -28,18 +27,28 @@ public class WhiteSpaceParser {
 		
 		endLine = startLine + methodBodyLength - 1;	
 		googleStyle = linesOfFile[endLine + 2].contains(nextMethodName);
-		System.out.printf("Follows google style for lines between methods? %b\n" , googleStyle);
+		return googleStyle;
 		
 	}
 	
-	public void parseIndents(String[] methodLines) {
+	/**
+	 *  operates under a few assumptions: lines in the same block are indented the same way
+	 *  the field "numSpaceOccurrences" in MethodWhiteSpaceParser will be computed as follows:
+	 *  	1) obtain # of spaces used in each line, store in arraylist 
+	 *  	2) obtain average indent value
+	 *  	3) for each line, divide # spaces by avg indent value, then sum the quotients up.
+	 * @param methodLines
+	 * @param mwp
+	 */
+	public void parseIndents(String[] methodLines, MethodWhiteSpaceResults mwp) {
 		int i, cnt = 0;
 		char c;
 		int minIndent = Integer.MAX_VALUE;
 		int maxIndent = Integer.MIN_VALUE;
-		boolean spaces = false, tabs = false;
+		ArrayList<Integer> indents = new ArrayList<Integer>();
+		ArrayList<Integer> spaces = new ArrayList<Integer>(); // # spaces used in each line
 		int numTabs = 0;
-		int numSpaces = 0;
+		int numLineSpaces = 0;
 		String line;
 		int indent;
 
@@ -48,40 +57,65 @@ public class WhiteSpaceParser {
 			line = methodLines[i];
 
 			if (!line.trim().equals("")) {
-//				System.out.printf("Line is %s\n", line);
+				numLineSpaces = 0;
 				while (Character.isWhitespace(c = line.charAt(cnt))) {
 					if (c == ' ') {
-						spaces = true;
-						numSpaces++;
+						numLineSpaces++;
 					} else if (c == '\t') {
-						tabs = true;
 						numTabs++;
 					}
 					cnt++;
 				}
 
-				// update space count
+				spaces.add(numLineSpaces);
+				
 				if ((line.length() >= 2) && (line.charAt(line.length() - 1) == '{')) {
-
 					indent = updateSpaceCount(methodLines, i);
-					
-					if (indent > maxIndent) {
-						maxIndent = indent;
+					if (indent > 0) {
+						indents.add(indent);					
+						maxIndent = Math.max(indent, maxIndent);
+						minIndent = Math.min(indent, minIndent);
 					}
-
-					if (indent < minIndent) {
-						minIndent = indent;
-					}
-
 				}
 			}
 
 		}
 		
-		System.out.printf("Uses tabs? %b\t spaces? %b\t\nmaxIndent = %d\t minIndent = %d\n", tabs, spaces, maxIndent, minIndent);
+		// Computing Results
+		mwp.minIndent = minIndent;
+		mwp.maxIndent = maxIndent;
+		mwp.numTabOccurrences = numTabs;
+		mwp.averageIndent = computeAverageIndent(indents);
+		mwp.numSpaceOccurrences = computeSpaceOccurrences(spaces, mwp.averageIndent);
 
 	}
 
+	// -1 denotes that only tabs were used. a non-negative number should be returned otherwise.
+	public int computeAverageIndent(ArrayList<Integer> indents) {
+		int sum = 0;
+		for (int i = 0; i < indents.size(); i++) {
+			sum += indents.get(i);
+		}
+		
+		if (indents.size() > 0) {
+			int avg = sum/indents.size();
+			return avg;
+		}
+		return -1;
+	}
+	
+	public int computeSpaceOccurrences(ArrayList<Integer> lineSpaces, int avg) {
+		if (avg > 0) {
+			int numOccurrences = 0;
+			for (int i = 0; i < lineSpaces.size(); i++) {
+				numOccurrences += (lineSpaces.get(i)/avg);
+			}
+
+			return numOccurrences;
+		}
+		return 0;
+	}
+	
 	public int updateSpaceCount(String[] methodLines, int i) {
 		int indent;
 		int line1Spaces = 0;
@@ -97,7 +131,7 @@ public class WhiteSpaceParser {
 		line2 = methodLines[j];
 		
 		if (line2.contains("\t") || line1.contains("\t")) {
-			return 0;
+			return -1;
 		}
 		
 		while (line1.charAt(line1Spaces) == ' ') {
@@ -114,31 +148,14 @@ public class WhiteSpaceParser {
 			return 0;
 		}
 		
-		System.out.printf("Indent is : %d\n", indent);
 		return indent;
 		
 	}
 	
-	public void parseWhiteSpace(String[] methodLines) {
-		parseIndents(methodLines);	
-		parseExtraBlankLines(methodLines);
+	public MethodWhiteSpaceResults parseWhiteSpace(String[] methodLines) {
+		MethodWhiteSpaceResults mwp = new MethodWhiteSpaceResults();
+		parseIndents(methodLines, mwp);	
+		return mwp;
 	}
-	
-
-	public void parseExtraBlankLines(String[] methodLines) {
-		int extraBlankLines = 0;
-		
-		for (int i = 0; i < methodLines.length; i++) {
-			String line = methodLines[i];
-			if (ph.onlyContains(line, '{')) {
-				if (methodLines[i+1].trim().equals("")) {
-					extraBlankLines++;
-				}
-			}
-		}
-		
-		System.out.printf("Extra blank lines after control statements: %d\n", extraBlankLines);
-	}
-	
 	
 }

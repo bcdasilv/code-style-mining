@@ -5,7 +5,6 @@ import java.util.ArrayList;
 
 public class ParsingHelper {
 
-	
     public String[] readLines(String filename) throws IOException {
         FileReader fileReader = new FileReader(filename);
         BufferedReader bufferedReader = new BufferedReader(fileReader);
@@ -22,7 +21,6 @@ public class ParsingHelper {
 	
 	public boolean onlyContains(String s, char c) {
 
-//		System.out.printf("Finding for %c in %s:::", c, s);
 		if (s.equals(""))
 			return false;
 		
@@ -30,12 +28,10 @@ public class ParsingHelper {
 		
 		if (!s.equals("") && (s.length() == 1)) {
 			boolean value = s.charAt(0) == c;
-//			System.out.printf("%b\n", value);
 			return value;
 		}
 		
 		return false;
-
 	}
 
 	public String[] getNextBlock(String control, String[] lines, int index) {
@@ -44,13 +40,9 @@ public class ParsingHelper {
 		while (true) {
 			if (s.trim().equals("")) {
 				s = lines[++index];
-			}
-			
-			else if (!s.trim().equals("") && s.contains(control)) {
+			} else if (!s.trim().equals("") && s.contains(control)) {
 				return getMethodBody(control, lines, index);
-			}
-			
-			else {
+			} else {
 				return null;
 			}
 		}
@@ -130,6 +122,5 @@ public class ParsingHelper {
 		
 		return matches;
 	}
-	
 
 }

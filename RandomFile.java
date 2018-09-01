@@ -6,6 +6,10 @@ import java.awt.swing;
 
 public class classOne {
 
+	private static int static1;
+	private int iv1;
+	private static final int CONSTANT_1 = 1;
+	
    public static void main(String[] args) {
 
       System.out.printf("Hello. I hate the world.\n");

@@ -22,8 +22,6 @@
  *  
  */
 
-import java.util.ArrayList;
-
 public class BraceParser {
 
 	// brace styles
@@ -98,7 +96,7 @@ public class BraceParser {
 	}
 
 	/**
-	 * Looks through each method and analyzes brace styles
+	 * Looks through each method and analyzes brace styles -- "Master" function
 	 * @param methodLines the lines of the method
 	 */
 	public BraceResults parseMethodBraces(String[] methodLines) {
