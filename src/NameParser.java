@@ -29,7 +29,7 @@ public class NameParser {
 			wordList = new ArrayList<>(Arrays.asList(words));
 			constant = wordList.contains("final");
 			
-			// go through each word in the field declaration and find the index of the primitive type
+			// go through each word in the field declaration and find the index of the primitßive type
 			for (int j = 0; j < wordList.size(); j++) {
 				if (primitives.contains(wordList.get(i))) {
 					indx = j;
@@ -47,7 +47,7 @@ public class NameParser {
 				}
 			} else {
 				result = parseName(var, false, false, false);
-				nr.variables.add(result);
+				nr.fields.add(result);
 			}
 			
 		}
@@ -70,8 +70,7 @@ public class NameParser {
 			result = parseName(methodName, false, false, false);
 			nr.methods.add(result);
 		}
-		
-		
+	
 	}
 	
 	public void parseVariables(String[] methodLines, NameResults nr) {
