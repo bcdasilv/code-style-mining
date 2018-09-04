@@ -32,9 +32,9 @@ def check_errors(counters, report, header, macro, clean):
         print("    None. {} statements conform to PEP 8.".format(clean))
 
 
-# this function assumes PEP 8 and Google style guides are the
+# This function assumes PEP 8 and Google style guides are the
 # same for the style element being analyzed
-# if the style guides differ, do not use this function
+# If the style guides differ, do not use this function
 def json_check_errors(counters, report, macro):
     temp_dict = {"pep": None, "google": None, "errors": None}
     has_errs = False
@@ -69,7 +69,7 @@ def check_blank_lines(counters, report):
 def check_imports(counters, report):
     check_errors(counters, report, "Import Statement", IMPORT_ERRORS, "Import")
 
-# create the dictionary of values to be converted into JSON output
+# Create the dictionary of values to be converted into JSON output
 def create_json_dict(counters, report):
     obj = {"naming": None} # TODO: update when naming checks are implemented
     obj["indentation"] = json_check_errors(counters, report, INDENT_ERRORS)
@@ -92,14 +92,14 @@ def main(argv):
     # TODO: clean up
     file_name = argv[0]
 
-    # Collect the PEP8 reported errors according to pycodestyle.
+    # Collect the PEP8 reported errors according to Pycodestyle.
     sg = StyleGuide()
+    # TODO: should be able to "max_line_length=80" in the parens, but not working. add Google line length support
+
     breport = BaseReport(options=sg.options)
     quiet_checker = Checker(file_name, report=breport)
     quiet_checker.check_all()
     counters = breport.counters
-    #print(counters)  # TODO: delete this
-    #print()
 
     # TODO: if a runtime error is thrown (E901, E902), still analyze the rest?
 
@@ -110,7 +110,7 @@ def main(argv):
     check_imports(counters, breport)"""
 
     js = create_json_dict(counters, breport)
-    print(json.dumps(js, indent=4))
+    return json.dumps(js, indent=4)
 
     # loud_checker = Checker("messy/imports.py", report=StandardReport(options=sg.options))
     # loud_checker.check_all()
