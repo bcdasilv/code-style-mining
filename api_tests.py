@@ -17,11 +17,13 @@ FILE_TYPE = "type"
 FILE_NAME = "path"
 URL = "url"
 PYFILE_CONTENTS = "content"
-TOKEN = # TODO: << personal access token here >>
+
+
+token = "void"
 
 
 def make_get_request(url):
-    headers = {"Authorization": "token " + TOKEN}
+    headers = {"Authorization": "token " + token}
     resp = requests.get(url, headers=headers)
     if resp.status_code != 200:
         raise ConnectionError('GET {} {}'.format(url[len(BASE_URL):], resp.status_code))
@@ -83,7 +85,13 @@ def strip_newlines(content):
     return content.replace("\n", "") # TODO: deprecated?
 
 
+
 def main(argv):
+
+    global token
+    token = input("OAuth token: ")  # TODO: error-check input
+    print(token)
+
     # TODO: error-check cmdline args
     print(argv)
     owner = argv[0]
