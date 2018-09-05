@@ -14,8 +14,10 @@ public class MainParser {
 	
 	public static void main(String[] args) {
 
-		FileParser fp = new FileParser();
-		fp.parseFile(localFile);
+		RawTextGet tester = new RawTextGet();
+		tester.testAPI();
+//		FileParser fp = new FileParser();
+//		fp.parseFile(localFile);
 
 	}
 
@@ -45,8 +47,11 @@ public class MainParser {
 
 		Repository repo = git.getRepository();		
 
-		for (File content : repo.getWorkTree().listFiles())
+		for (File content : repo.getWorkTree().listFiles()) {
 			classifyFiles(content);
+			
+		}
+			
 	}
 
 	public static void classifyFiles(File f) {

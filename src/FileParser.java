@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.github.javaparser.JavaParser;
@@ -29,13 +28,13 @@ public class FileParser {
 	// the one exception is the NameResults object -- it holds name result information for all the classes, members inside classes, and local variables inside methods.
 	// there is only one NameResults object for each file.
 	
-	private boolean wildCard;
-	private boolean packageDecName;
-	private ArrayList<Boolean> classWhiteSpace = new ArrayList<Boolean>();
-	private ArrayList<BraceResults> braces = new ArrayList<BraceResults>();
-	private ArrayList<Integer> linesExceeding = new ArrayList<Integer>();
-	private ArrayList<MethodWhiteSpaceResults> methodWPs = new ArrayList<MethodWhiteSpaceResults>();
-	private NameResults nr = new NameResults();
+	protected boolean wildCard;
+	protected boolean packageDecName;
+	protected ArrayList<Boolean> classWhiteSpace = new ArrayList<Boolean>();
+	protected ArrayList<BraceResults> braces = new ArrayList<BraceResults>();
+	protected ArrayList<Integer> linesExceeding = new ArrayList<Integer>();
+	protected ArrayList<MethodWhiteSpaceResults> methodWPs = new ArrayList<MethodWhiteSpaceResults>();
+	protected NameResults nr = new NameResults();
 	
 	public void parseFile(String f) {
 
