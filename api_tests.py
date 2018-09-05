@@ -1,4 +1,5 @@
 import base64
+import json
 import os
 import requests
 import sys
@@ -8,15 +9,47 @@ import analysis
 BASE_URL = "https://api.github.com"
 LOCAL_PATH = "./pyfiles"
 
-# JSON field names
-DEFAULT_BRANCH = "default_branch"
-BRANCH_COMMIT = "commit"
-SHA = "sha"
-TREE = "tree"
-FILE_TYPE = "type"
-FILE_NAME = "path"
-URL = "url"
+# GitHub JSON field names
+GH_BRANCH_COMMIT = "commit"
+GH_DEFAULT_BRANCH = "default_branch"
+GH_FILE_TYPE = "type"
+GH_FILE_NAME = "path"
+GH_HTML_URL = "html_url"
+GH_LOGIN = "login"
+GH_NODE_ID = "node_id"
+GH_REPO_FULL_NAME = "full_name"
+GH_REPO_LANG = "language"
+GH_REPO_NAME = "name"
+GH_REPO_ORG = "organization"
+GH_REPO_OWNER = "owner"
+GH_REPO_PRIVATE = "private"
+GH_SHA = "sha"
+GH_SIZE = "size"
+GH_TREE = "tree"
+GH_URL = "url"
+
 PYFILE_CONTENTS = "content"
+FILE_RESULTS_DICT = 0
+FILE_RESULTS_LOCAL_PATH = 1
+
+# Custom JSON field names
+C_FILE_ANALYSIS = "analysis"
+C_FILE_NAME = "file_name"
+C_FILE_PATH = "file_path"
+C_HTML_URL = "html_url"
+C_LOGIN = "login"
+C_NODE_ID = "node_id"
+C_REPO_FULL_NAME = "full_name"
+C_REPO_LANG = "language"
+C_REPO_NAME = "name"
+C_REPO_ORG = "organization"
+C_REPO_OWNER = "owner"
+C_REPO_PRIVATE = "private"
+C_REPO_ANALYSIS = "repo_analysis"
+C_SHA = "sha"
+C_SIZE = "size"
+C_TYPE = "type"
+C_URL = "url"
 
 
 token = "void"
@@ -48,97 +81,121 @@ def get_tree(owner, repo, sha):
 def get_file(url):
     return make_get_request(url)
 
-# TODO: clean up
-def check_tree_contents(contents, pyfile_local_path_partial, owner, repo):
+def process_file(blob, pyfile_local_path_partial):
+    pyfile_resp = get_file(blob[GH_URL])
+    pyfile_json = pyfile_resp.json()
+    pyfile_contents = base64.standard_b64decode(strip_newlines(pyfile_json[PYFILE_CONTENTS]))
+    # Clone the file locally
+    if not os.path.exists(pyfile_local_path_partial):
+        os.makedirs(pyfile_local_path_partial)
+    pyfile_local_path_full = pyfile_local_path_partial + "/" + blob[GH_FILE_NAME]
+    with open(pyfile_local_path_full, "wb") as f:
+        f.write(pyfile_contents)
+    # Run the analysis
+    analysis_results = analysis.collect_file_dict_results(pyfile_local_path_full)
+    dict_results = {C_FILE_NAME: blob[GH_FILE_NAME],
+                    C_FILE_PATH: pyfile_local_path_full,
+                    C_SHA: pyfile_json[GH_SHA],
+                    C_SIZE: pyfile_json[GH_SIZE],
+                    C_NODE_ID: pyfile_json[GH_NODE_ID],
+                    C_URL: pyfile_json[GH_URL],
+                    C_FILE_ANALYSIS: analysis_results}
+    return dict_results, pyfile_local_path_full
+
+
+def check_tree_contents(contents, pyfile_local_path_partial, owner, repo, master_results={}):
     for c in contents:
-        if c[FILE_TYPE] == "blob":
-            if c[FILE_NAME].endswith(".py"):
-                # If it is a Python file, run the analysis
-                print("python blob: {}".format(c['path']))
-                pyfile_sha = c[SHA]
-                pyfile_url = c[URL]
-                pyfile_resp = get_file(pyfile_url)
-                #pyfile_contents = base64.standard_b64decode(pyfile_resp.json()[PYFILE_CONTENTS].replace("\n", "n"))
-                pyfile_contents = base64.standard_b64decode(strip_newlines(pyfile_resp.json()[PYFILE_CONTENTS]))
-                if not os.path.exists(pyfile_local_path_partial):
-                    os.makedirs(pyfile_local_path_partial)
-                pyfile_local_path_full = pyfile_local_path_partial + "/" + c[FILE_NAME]
-                with open(pyfile_local_path_full, "wb") as f:
-                    f.write(pyfile_contents)
-                #os.system("python3 analysis.py " + pyfile_local_path_full)
-                json = analysis.main(pyfile_local_path_full) # TODO: does not return
-                print({c[FILE_NAME]: json}) # TODO: should be a return
-        elif c[FILE_TYPE] == "tree":
-            # if it is a directory, drill down
-            print("dir: {}".format(c[FILE_NAME]))
-            print(c)
-            check_tree_contents(get_tree(owner, repo, c[SHA]).json()[TREE],
-                                pyfile_local_path_partial + "/" + c[FILE_NAME],
+        if c[GH_FILE_TYPE] == "blob":
+            if c[GH_FILE_NAME].endswith(".py"):
+                # If it is a Python file, run the analysis #TODO: run analysis if file is of size 0?
+                print("Python blob: {}".format(c[GH_FILE_NAME])) # Status update printed to console
+                file_results = process_file(c, pyfile_local_path_partial)
+                local_path = file_results[FILE_RESULTS_LOCAL_PATH]
+                if local_path in master_results.keys():
+                    raise Exception("A file with the path {} already exists.".format(local_path))
+                else:
+                    master_results[local_path] = file_results[FILE_RESULTS_DICT]
+        elif c[GH_FILE_TYPE] == "tree":
+            # If it is a directory, drill down
+            print("dir: {}".format(c[GH_FILE_NAME])) # Status update printed to console
+            check_tree_contents(get_tree(owner, repo, c[GH_SHA]).json()[GH_TREE],
+                                pyfile_local_path_partial + "/" + c[GH_FILE_NAME],
                                 owner,
-                                repo)
-        else:
-            print(c['type'])
-        # TODO: collect results throughout and return json dict at the end
+                                repo,
+                                master_results)
+    return master_results
 
-# file contents are returned with newlines that must be removed for proper decoding
+
+# Returns a dictionary of the Login, Node ID, URL, HTML URL, and Type
+# Used for Owner and Organization objects
+def collect_repo_simple_dict(obj):
+    return {C_LOGIN: obj[GH_LOGIN],
+            C_NODE_ID: obj[GH_NODE_ID],
+            C_URL: obj[GH_URL],
+            C_HTML_URL: obj[GH_HTML_URL],
+            C_TYPE: obj[GH_FILE_TYPE]}
+
+# All of the information for the repo
+def collect_repo_json_dict(resp):
+    repo_dict = {C_NODE_ID: resp[GH_NODE_ID],
+                 C_REPO_NAME: resp[GH_REPO_NAME],
+                 C_REPO_FULL_NAME: resp[GH_REPO_FULL_NAME],
+                 C_REPO_OWNER: collect_repo_simple_dict(resp[GH_REPO_OWNER]),
+                 C_REPO_PRIVATE: resp[GH_REPO_PRIVATE],
+                 C_HTML_URL: resp[GH_HTML_URL],
+                 C_URL: resp[GH_URL],
+                 C_SIZE: resp[GH_SIZE],
+                 C_REPO_LANG: resp[GH_REPO_LANG],
+                 C_REPO_ORG: None,
+                 C_REPO_ANALYSIS: None}
+    if GH_REPO_ORG in resp:
+        repo_dict[C_REPO_ORG] = collect_repo_simple_dict(resp[GH_REPO_ORG])
+    return repo_dict
+
+
+# Return file contents without newlines
+# (Newlines ust be removed for proper decoding later)
 def strip_newlines(content):
-    return content.replace("\n", "") # TODO: deprecated?
+    return content.replace("\n", "")
 
+def check_input(str, msg):
+    if not str.isalnum():
+        raise ValueError(msg)
 
 
 def main(argv):
 
     global token
-    token = input("OAuth token: ")  # TODO: error-check input
-    print(token)
+    token = input("OAuth token: ")
+    check_input(token, "That is not a valid token. Please obtain an OAuth token from GitHub.")
 
-    # TODO: error-check cmdline args
-    print(argv)
-    owner = argv[0]
-    repo = argv[1]
-    print("owner: {}\nrepo: {}".format(owner, repo))
+    owner = input("Repo Owner: ")
+    check_input(owner, "That is not a valid owner username. Please double-check your input.")
+    repo = input("Repository Name: ")
+    check_input(repo, "That is not a valid repository name. Please double-check your input.")
 
-    # get the repo
+    # Get the repo
     repo_resp = get_repo(owner, repo)
-    def_branch = repo_resp.json()[DEFAULT_BRANCH]
+    repo_json_dict = collect_repo_json_dict(repo_resp.json())
+    def_branch = repo_resp.json()[GH_DEFAULT_BRANCH] # TODO: only explores default branch
 
-    # get the default branch of the repo
+    # Get the default branch of the repo
     branch_resp = get_branch(owner, repo, def_branch)
     current_url = def_branch
     pyfile_local_path_partial = LOCAL_PATH + "/" + repo + "/" + current_url
-    main_sha = branch_resp.json()[BRANCH_COMMIT][SHA] # the sha of the most recent commit to the default
-    #print(main_sha)
+    main_sha = branch_resp.json()[GH_BRANCH_COMMIT][GH_SHA] # The SHA of the most recent commit to the default branch
 
-    # get the tree for the default branch
+    # Get the tree for the default branch
     tree_resp = get_tree(owner, repo, main_sha)
-    #print(tree_resp.status_code)
-    #print(tree_resp.json())
-    check_tree_contents(tree_resp.json()[TREE], pyfile_local_path_partial, owner, repo)
+    analysis_results = check_tree_contents(tree_resp.json()[GH_TREE], pyfile_local_path_partial, owner, repo)
+    repo_json_dict[C_REPO_ANALYSIS] = analysis_results
 
-    """tree_contents = tree_resp.json()[TREE]
-    print(tree_contents)
-    for c in tree_contents:
-        if c[FILE_TYPE] == "blob":
-            if c[FILE_NAME].endswith(".py"):
-                # if it is a Python file, run the analysis
-                print("python blob: {}".format(c['path']))
-                pyfile_sha = c[SHA]
-                pyfile_url = c[URL]
-                pyfile_resp = get_file(pyfile_url)
-                pyfile_contents = base64.standard_b64decode(strip_newlines(pyfile_resp.json()[PYFILE_CONTENTS]))
-                if not os.path.exists(pyfile_local_path_partial):
-                    os.makedirs(pyfile_local_path_partial)
-                pyfile_local_path_full = pyfile_local_path_partial + "/" + c[FILE_NAME]
-                with open(pyfile_local_path_full, "wb") as f:
-                    f.write(pyfile_contents)
-                os.system("python3 analysis.py " + pyfile_local_path_full)
-        elif c[FILE_TYPE] == "tree":
-            # if it is a directory, drill down
-            print("dir: {}".format(c['path']))
-        else:
-            print(c['type'])"""
+    master_name = owner + "/" + repo
+    master_dict = {master_name: repo_json_dict}
+    master_json = json.dumps(master_dict)
+    print(master_json)
+    return master_json
 
 
 if __name__ == '__main__':
-    main(["django", "django"])
-    #main(sys.argv[1:])
+    main(sys.argv[1:])

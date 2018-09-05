@@ -1,4 +1,5 @@
 import json
+import string # TODO: delete unnecessary inputs
 import sys
 from pycodestyle import *
 
@@ -53,7 +54,6 @@ def json_check_errors(counters, report, macro):
     return temp_dict
 
 
-# TODO: write wiki for indents
 def check_indents(counters, report):
     check_errors(counters, report, "Indentation", INDENT_ERRORS, "Indentations of")
 
@@ -81,42 +81,39 @@ def create_json_dict(counters, report):
     return obj
 
 
-
-def main(argv):
-    # TODO: error-check input
-    #print(type(argv))
-    #print(argv)
-
-    # TODO: pycodestyle always throws EXTRANEOUS_WHITESPACE_REGEX ?
-
-    # TODO: clean up
-    file_name = argv[0]
-
+def collect_file_dict_results(file_name):
     # Collect the PEP8 reported errors according to Pycodestyle.
     sg = StyleGuide()
     # TODO: should be able to "max_line_length=80" in the parens, but not working. add Google line length support
-
     breport = BaseReport(options=sg.options)
+    # TODO: check file actually exists. otherwise falsely outputting that it is compliant
     quiet_checker = Checker(file_name, report=breport)
     quiet_checker.check_all()
     counters = breport.counters
-
     # TODO: if a runtime error is thrown (E901, E902), still analyze the rest?
-
-    """check_indents(counters, breport)
-    check_tabs_spaces(counters, breport)
-    check_line_length(counters, breport)
-    check_blank_lines(counters, breport)
-    check_imports(counters, breport)"""
-
     js = create_json_dict(counters, breport)
-    return json.dumps(js, indent=4)
+    return js
 
-    # loud_checker = Checker("messy/imports.py", report=StandardReport(options=sg.options))
-    # loud_checker.check_all()
+def check_input(str):
+    # TODO: double-check this function
+    temp = str
+    msg = "That is not a valid file name. Please double-check your input."
+    if " " in temp:
+        temp = temp.replace(" ", "")
+    for s in string.whitespace:
+        if s == " ":
+            pass
+        else:
+            if s in temp:
+                raise ValueError(msg)
+
+
+def main(argv):
+    # TODO: pycodestyle always throws EXTRANEOUS_WHITESPACE_REGEX ?
+    file_name = argv[0]
+    check_input(file_name)
+    return collect_file_dict_results(file_name)
 
 
 if __name__ == '__main__':
-    #main()
     main(sys.argv[1:])
-    #main("messy/hodgepodge.py")
