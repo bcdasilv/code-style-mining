@@ -1,4 +1,5 @@
 import base64
+from datetime import datetime
 import json
 import os
 import requests
@@ -39,6 +40,7 @@ C_FILE_PATH = "file_path"
 C_HTML_URL = "html_url"
 C_LOGIN = "login"
 C_NODE_ID = "node_id"
+C_PROCESSED = "date_processed"
 C_REPO_FULL_NAME = "full_name"
 C_REPO_LANG = "language"
 C_REPO_NAME = "name"
@@ -99,6 +101,7 @@ def process_file(blob, pyfile_local_path_partial):
                     C_SIZE: pyfile_json[GH_SIZE],
                     C_NODE_ID: pyfile_json[GH_NODE_ID],
                     C_URL: pyfile_json[GH_URL],
+                    C_PROCESSED: str(datetime.now()),
                     C_FILE_ANALYSIS: analysis_results}
     return dict_results, pyfile_local_path_full
 
@@ -195,6 +198,8 @@ def main(argv):
     master_json = json.dumps(master_dict)
     print(master_json)
     return master_json
+
+
 
 
 if __name__ == '__main__':
