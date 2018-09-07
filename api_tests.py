@@ -200,7 +200,5 @@ def main(argv):
     return master_json
 
 
-
-
 if __name__ == '__main__':
     main(sys.argv[1:])

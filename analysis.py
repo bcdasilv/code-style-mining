@@ -3,6 +3,8 @@ import string # TODO: delete unnecessary inputs
 import sys
 from pycodestyle import *
 
+import naming_analysis as naming
+
 # TODO: check trailing whitespace? W291, W292, W293, W391
 # TODO: W503, W504? says not enforced by PEP8?
 INDENT_ERRORS = ["E111", "E112", "E113", "E121", "E122", "E123", "E124",
@@ -70,8 +72,8 @@ def check_imports(counters, report):
     check_errors(counters, report, "Import Statement", IMPORT_ERRORS, "Import")
 
 # Create the dictionary of values to be converted into JSON output
-def create_json_dict(counters, report):
-    obj = {"naming": None} # TODO: update when naming checks are implemented
+def create_json_dict(counters, report, file_name):
+    obj = {"naming": naming.naming_results(file_name)}
     obj["indentation"] = json_check_errors(counters, report, INDENT_ERRORS)
     obj["tabs_vs_spaces"] = json_check_errors(counters, report, TABS_SPACES_ERRORS)
     obj["line_length"] = json_check_errors(counters, report, LINE_LENGTH_ERRORS)
@@ -91,7 +93,8 @@ def collect_file_dict_results(file_name):
     quiet_checker.check_all()
     counters = breport.counters
     # TODO: if a runtime error is thrown (E901, E902), still analyze the rest?
-    js = create_json_dict(counters, breport)
+    js = create_json_dict(counters, breport, file_name)
+    naming.cleanup()
     return js
 
 def check_input(str):
@@ -112,8 +115,9 @@ def main(argv):
     # TODO: pycodestyle always throws EXTRANEOUS_WHITESPACE_REGEX ?
     file_name = argv[0]
     check_input(file_name)
-    return collect_file_dict_results(file_name)
-
+    res = collect_file_dict_results(file_name)
+    print(json.dumps(res))
+    return res
 
 if __name__ == '__main__':
     main(sys.argv[1:])
