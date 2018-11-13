@@ -8,26 +8,32 @@ import java.net.URL;
 
 public class RawTextGet {
 
-	static final String springboot = "https://api.github.com/repos/TheAlgorithms/Java/branches/master";
-	static final String treeURL = "https://api.github.com/repos/TheAlgorithms/Java/git/trees/";
+	static final String springboot = "https://api.github.com/repos/ShaneVill8/Calculator/branches/master";
+	static final String treeURL = "https://api.github.com/repos/ShaneVill8/Calculator/git/trees/";
 	
 	public void testAPI() {
 		
 		String firstSHA = startTraversingMasterBranch(springboot);
-		ArrayList<String> urls;
-		ArrayList<String> content;
+		ArrayList<String> urls = new ArrayList<String>();
+//		ArrayList<String> content = new ArrayList<String>();
+		FileParser fp = new FileParser();
+		
+		int i = 0;
 		if (firstSHA != null) {
 			urls = startTreeTraversal(treeURL + firstSHA + "?recursive=1");
 		}
 
-//		for(i = 0; i < content.length){
-//			byte[] valueDecoded = Base64.decodeBase64("url[i]");
+		for(i = 0; i < urls.size(); i++){
+			String x = urls.get(i);
+			x = x.replace("\\n", "");
+			byte[] valueDecoded = Base64.decodeBase64(x);
+			
+//			String[] y = new String(valueDecoded).split("\\n");
+//			fp.parseFile(y);
+			
 //			content.add(new String(valueDecoded));
-//			System.out.println("\n" + new String(valueDecoded));
-//		}
-		
-//		FileParser fp = new FileParser();
-//		fp.parseFile(localFile);
+//			System.out.println("here: \n" + new String(valueDecoded));
+		}
 	}
 	
 	public String startTraversingMasterBranch(String url) {
@@ -117,7 +123,7 @@ public class RawTextGet {
 		try {
 			URL springboot = new URL(url);
 			HttpURLConnection conn = (HttpURLConnection)springboot.openConnection();
-
+			
 			conn.setRequestProperty("Content-Type","application/json");
 			conn.setDoOutput(true);
 			conn.setDoInput(true);
