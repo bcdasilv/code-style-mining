@@ -1,6 +1,10 @@
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-//import java.util.Base64.Decoder;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
 import org.apache.commons.codec.binary.Base64;
 import java.util.ArrayList;
 import java.net.HttpURLConnection;
@@ -15,7 +19,6 @@ public class RawTextGet {
 		
 		String firstSHA = startTraversingMasterBranch(springboot);
 		ArrayList<String> urls = new ArrayList<String>();
-//		ArrayList<String> content = new ArrayList<String>();
 		FileParser fp = new FileParser();
 		
 		int i = 0;
@@ -27,12 +30,10 @@ public class RawTextGet {
 			String x = urls.get(i);
 			x = x.replace("\\n", "");
 			byte[] valueDecoded = Base64.decodeBase64(x);
+			String pwd = createFile(new String(valueDecoded));
 			
 //			String[] y = new String(valueDecoded).split("\\n");
-//			fp.parseFile(y);
-			
-//			content.add(new String(valueDecoded));
-//			System.out.println("here: \n" + new String(valueDecoded));
+			fp.parseFile(pwd);
 		}
 	}
 	
@@ -69,7 +70,6 @@ public class RawTextGet {
 			else
 				break;
 		}
-//		System.out.println(returnThis + "\n");
 		return returnThis;	
 	}
 	
@@ -108,7 +108,6 @@ public class RawTextGet {
 			if (line.contains("content")) {
 				rawContent = words[i].substring(11, words[i].length()-6);
 				rawContent.replaceAll("\\n", "");
-//				System.out.println(rawContent);
 				break;
 			}
 		}
@@ -143,5 +142,38 @@ public class RawTextGet {
 			e.printStackTrace();
 		}
 		return rawResponse;
+	}
+	
+	public String createFile(String content) {
+		  FileOutputStream fos = null;
+	      File file = null;
+	      String mycontent = content;
+	      String x = "/Users/user/Desktop/400/newFile.java";
+	      try {
+			  file = new File(x);
+			  fos = new FileOutputStream(file);
+
+			  if (!file.exists()) {
+			     file.createNewFile();
+			  }
+
+			  byte[] bytesArray = mycontent.getBytes();
+		
+			  fos.write(bytesArray);
+			  fos.flush();
+			  System.out.println("File Written Successfully\n");
+	       } catch (IOException ioe) {
+	    	   ioe.printStackTrace();
+	       } finally {
+			  try {
+			     if (fos != null) {
+			    	 fos.close();
+			     }
+	          } 
+			  catch (IOException ioe) {
+			     System.out.println("Error in closing the Stream");
+			  }
+	       }
+		return x;
 	}
 }
