@@ -163,9 +163,10 @@ def collect_repo_json_dict(resp):
     return repo_dict
 
 
-def write_to_mongodb(db_name, coll_name, data): #TODO: write to mongodb
+def write_to_mongodb(mongodb_user, mongodb_password, cluster, db_name, coll_name, data): #TODO: write to mongodb
     client = pymongo.MongoClient(
-        "mongodb+srv://kelliebanzon:28uyGZilWGGQYLgE@getting-started-hrn5f.mongodb.net/test?retryWrites=true")
+        "mongodb+srv://" + mongodb_user + ":" + mongodb_password + "@" + cluster + "/test?retryWrites=true"
+    )
     db = client[db_name]
     coll = db[coll_name]
     mongo_id = coll.insert_one(data)
@@ -241,35 +242,16 @@ def main(argv):
     master_dict = {master_name: repo_json_dict}
     master_json = json.dumps(master_dict)
 
-    #client = pymongo.MongoClient("calpoly.edu", username="kelliebanzon", password="zqu!v3R0", authMechanism='SCRAM-SHA-256')
-    #uri = "mongodb://kmbanzon:zqu!v3R0@calpoly.edu/?authSource=take1&authMechanism=SCRAM-SHA-256"
-
-    #client = pymongo.MongoClient("mongodb+srv://kelliebanzon:zqu!v3R0@getting-started-hrn5f.mongodb.net/test?retryWrites=true")
-    #client = pymongo.MongoClient("mongodb://kelliebanzon:zqu!v3R0@getting-started-shard-00-00-hrn5f.mongodb.net:27017,getting-started-shard-00-01-hrn5f.mongodb.net:27017,getting-started-shard-00-02-hrn5f.mongodb.net:27017/test?ssl=true&replicaSet=getting-started-shard-0&authSource=admin&retryWrites=true")
-
-    """client = pymongo.MongoClient("mongodb+srv://kelliebanzon:28uyGZilWGGQYLgE@getting-started-hrn5f.mongodb.net/test?retryWrites=true")
-    #db = client.test
-
-    db = client["take01-repos"]
-    coll = db[master_name]
-    #coll = db["repos"]
-
-    #test_dict  = { "name": "John", "address": "Highway 37" }
-    #test_id = coll.insert_one(test_dict)
-    #print(test_id)
-    #mongo_id = coll.insert_one(master_dict)
-
-    print(json.dumps(repo_json_dict))
-    mongo_id = coll.insert_one(repo_json_dict)
-    print(mongo_id)"""
-
     print(master_name)
-    #print(write_to_mongodb("take01-repos", master_name, repo_json_dict))
+    mdb_name = input("MongoDB username: ")
+    mdb_password = input("MongoDB password: ")
+    mdb_cluster = input("MongoDB cluster: ")
+    mdb_database = input("MongoDB database: ")
+    print(write_to_mongodb(mdb_name, mdb_password, mdb_cluster, mdb_database, master_name, repo_json_dict))
 
     print("archival: ")
     print(master_json)
     return master_json
-
 
 
 
