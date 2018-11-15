@@ -18,13 +18,15 @@ CLASS_NAMES = []
 
 TUP_PEP = 0
 TUP_GOOG = 1
+TUP_COUNT = 2
 
 # JSON Field Names
 CLASSES = "classes"
-COUNT = "occurrences"
+COUNT = "definitions"
 FUNCS = "functions"
 GOOGLE = "google"
 PEP = "pep"
+OCCURS = "occurrences"
 
 class FuncLister(ast.NodeVisitor):
     def visit_FunctionDef(self, node):
@@ -68,26 +70,33 @@ def collect_function_names(name):
 def check_class_names():
     pep = True
     google = True
+    count = 0
     for name in CLASS_NAMES:
         if check_name_style(name) is not CW:
             pep = False
             google = False
-    return pep, google
+            count += 1
+    return pep, google, count
 
 def check_function_names():
     pep = True
     google = True
+    count = 0
     for name in FUNC_NAMES:
         style = check_name_style(name)
         if style is not SNAKE_LOWER and style is not LOWER:
             pep = False
             google = False
-    return pep, google
+            count += 1
+    return pep, google, count
 
 def collect_json_dict(classes, funcs):
-    d = {CLASSES: {COUNT: len(CLASS_NAMES), PEP: classes[TUP_PEP], GOOGLE: classes[TUP_GOOG]},
-         FUNCS:{COUNT: len(FUNC_NAMES), PEP: funcs[TUP_PEP], GOOGLE: funcs[TUP_GOOG]}}
-    return d
+    count = 0
+    d = {CLASSES: {COUNT: len(CLASS_NAMES), PEP: classes[TUP_PEP], GOOGLE: classes[TUP_GOOG], OCCURS: classes[TUP_COUNT]},
+         FUNCS:{COUNT: len(FUNC_NAMES), PEP: funcs[TUP_PEP], GOOGLE: funcs[TUP_GOOG], OCCURS: classes[TUP_COUNT]}}
+    for key in d.keys():
+        count += d[key][OCCURS]
+    return d, count
 
 def naming_results(file_name):
     with open(file_name, "r") as f:

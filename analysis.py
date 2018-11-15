@@ -37,17 +37,19 @@ def check_errors(counters, report, header, macro, clean):
 
 # Compares the file analysis results from Pycodestyle to the list
 # of expected errors passed in through the macro
-# parameters:
+# Parameters:
 # - counters: the error count results from Pycodestyle
 # - report: the file analysis results from Pycodestyle
 # - macro: the file error codes to consider; a sort of "filter" of the
 #   Pycodestyle error codes of interest for this section
+# Returns a tuple of dictionary of JSON results and number of errors found
 # Note: This function assumes PEP 8 and Google style guides are the
 # same for the style element being analyzed
 # If the style guides differ, do not use this function
 def json_check_errors(counters, report, macro):
     temp_dict = {"pep": None, "google": None, "errors": None}
     has_errs = False
+    count = 0
     for err in macro:
         if err in counters:
             if not has_errs:
@@ -57,10 +59,11 @@ def json_check_errors(counters, report, macro):
                 temp_dict["errors"] = {err: counters[err]}
             else:
                 temp_dict["errors"][err] = counters[err]
+            count += counters[err]
     if not has_errs:
         temp_dict["pep"] = True
         temp_dict["google"] = True
-    return temp_dict
+    return temp_dict, count
 
 
 def check_indents(counters, report):
@@ -97,14 +100,20 @@ def count_total_file_errors(dict):
 # Create the dictionary of analysis result values to be converted into JSON output
 def create_json_dict(counters, report, file_name):
     obj = {"total_file_errors": None}
-    obj["naming_analysis"] = naming.naming_results(file_name)
-    obj["indentation_analysis"] = json_check_errors(counters, report, INDENT_ERRORS)
-    obj["tabs_vs_spaces_analysis"] = json_check_errors(counters, report, TABS_SPACES_ERRORS)
-    obj["line_length_analysis"] = json_check_errors(counters, report, LINE_LENGTH_ERRORS)
-    obj["blank_lines_analysis"] = json_check_errors(counters, report, BLANK_LINE_ERRORS)
-    obj["imports_analysis"] = json_check_errors(counters, report, IMPORT_ERRORS)
+    names = naming.naming_results(file_name)
+    indents = json_check_errors(counters, report, INDENT_ERRORS)
+    tabs = json_check_errors(counters, report, TABS_SPACES_ERRORS)
+    length = json_check_errors(counters, report, LINE_LENGTH_ERRORS)
+    blanks = json_check_errors(counters, report, BLANK_LINE_ERRORS)
+    imports = json_check_errors(counters, report, IMPORT_ERRORS)
+    obj["naming_analysis"] = names[0]
+    obj["indentation_analysis"] = indents[0]
+    obj["tabs_vs_spaces_analysis"] = tabs[0]
+    obj["line_length_analysis"] = length[0]
+    obj["blank_lines_analysis"] = blanks[0]
+    obj["imports_analysis"] = imports[0]
     obj["file_encoding_analysis"] = None
-    obj["total_file_errors"] = count_total_file_errors(obj)
+    obj["total_file_errors"] = names[1] +indents[1] + tabs[1] + length[1] + blanks[1] + imports[1]
     return obj
 
 

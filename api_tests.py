@@ -97,6 +97,7 @@ def process_file(blob, pyfile_local_path_partial):
     with open(pyfile_local_path_full, "wb") as f:
         f.write(pyfile_contents)
     # Run the analysis
+    # Add the metadata from the GitHub API
     dict_results = {C_FILE_NAME: blob[GH_FILE_NAME],
                     C_FILE_PATH: pyfile_local_path_full,
                     C_SHA: pyfile_json[GH_SHA],
@@ -104,6 +105,7 @@ def process_file(blob, pyfile_local_path_partial):
                     C_NODE_ID: pyfile_json[GH_NODE_ID],
                     C_URL: pyfile_json[GH_URL],
                     C_PROCESSED: str(datetime.now())}
+    # Add the file analysis results
     dict_results.update(analysis.collect_file_dict_results(pyfile_local_path_full))
     return dict_results, pyfile_local_path_full
 
@@ -111,8 +113,7 @@ def process_file(blob, pyfile_local_path_partial):
 def check_tree_contents(contents, pyfile_local_path_partial, owner, repo, master_results={}):
     for c in contents:
         if c[GH_FILE_TYPE] == "blob":
-            if c[GH_FILE_NAME].endswith(FILE_EXTENSION):
-                # If it is a Python file, run the analysis
+            if c[GH_FILE_NAME].endswith(FILE_EXTENSION): # If it is a Python file, run the analysis
                 print("Python blob: {}".format(c[GH_FILE_NAME])) # Status update printed to console
                 file_results = process_file(c, pyfile_local_path_partial)
                 local_path = file_results[FILE_RESULTS_LOCAL_PATH]
@@ -123,7 +124,6 @@ def check_tree_contents(contents, pyfile_local_path_partial, owner, repo, master
                     start_gh_path = local_path.find(local_prefix) + len(local_prefix)
                     github_path = local_path[start_gh_path : len(local_path) - len(FILE_EXTENSION)]
                     master_results[github_path] = file_results[FILE_RESULTS_DICT]
-                    #master_results[local_path] = file_results[FILE_RESULTS_DICT]
         elif c[GH_FILE_TYPE] == "tree":
             # If it is a directory, drill down
             print("dir: {}".format(c[GH_FILE_NAME])) # Status update printed to console
@@ -163,7 +163,7 @@ def collect_repo_json_dict(resp):
     return repo_dict
 
 
-def write_to_mongodb(mongodb_user, mongodb_password, cluster, db_name, coll_name, data): #TODO: write to mongodb
+def write_to_mongodb(mongodb_user, mongodb_password, cluster, db_name, coll_name, data):
     client = pymongo.MongoClient(
         "mongodb+srv://" + mongodb_user + ":" + mongodb_password + "@" + cluster + "/test?retryWrites=true"
     )
@@ -238,11 +238,13 @@ def main(argv):
     analysis_results = check_tree_contents(tree_resp.json()[GH_TREE], pyfile_local_path_partial, owner, repo)
     repo_json_dict[C_REPO_ANALYSIS] = analysis_results
 
+    # for DEBUG
     master_name = owner + "/" + repo
     master_dict = {master_name: repo_json_dict}
     master_json = json.dumps(master_dict)
 
-    print(master_name)
+    print(master_json)
+
     mdb_name = input("MongoDB username: ")
     mdb_password = input("MongoDB password: ")
     mdb_cluster = input("MongoDB cluster: ")
@@ -250,10 +252,7 @@ def main(argv):
     print(write_to_mongodb(mdb_name, mdb_password, mdb_cluster, mdb_database, master_name, repo_json_dict))
 
     print("archival: ")
-    print(master_json)
     return master_json
-
-
 
 
 if __name__ == '__main__':
