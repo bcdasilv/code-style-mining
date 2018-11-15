@@ -5,6 +5,7 @@ from itertools import chain
 import json
 import pymongo
 import os
+import re
 import requests
 import sys
 
@@ -134,7 +135,7 @@ def check_tree_contents(contents, pyfile_local_path_partial, owner, repo, master
     for c in contents:
         if c[GH_FILE_TYPE] == "blob":
             if c[GH_FILE_NAME].endswith(FILE_EXTENSION): # If it is a Python file, run the analysis
-                print("Python blob: {}".format(c[GH_FILE_NAME])) # Status update printed to console
+                print("    Python blob: {}".format(c[GH_FILE_NAME])) # Status update printed to console
                 file_results = process_file(c, pyfile_local_path_partial)
                 local_path = file_results[FILE_RESULTS_LOCAL_PATH]
                 if local_path in master_results.keys():
@@ -143,7 +144,7 @@ def check_tree_contents(contents, pyfile_local_path_partial, owner, repo, master
                     local_prefix = LOCAL_PATH + "/" + repo + "/"
                     start_gh_path = local_path.find(local_prefix) + len(local_prefix)
                     github_path = local_path[start_gh_path : len(local_path) - len(FILE_EXTENSION)]
-                    master_results[github_path] = file_results[FILE_RESULTS_DICT]
+                    master_results[re.sub("[.]", "", github_path)] = file_results[FILE_RESULTS_DICT]
                     master_results[C_SUMMARY][C_TOTAL_REPO] += file_results[FILE_RESULTS_DICT][C_TOTAL_FILE]
                     curr = master_results[C_SUMMARY][C_TOTAL_CAT]
                     new = file_results[FILE_RESULTS_ERRS]
@@ -153,7 +154,7 @@ def check_tree_contents(contents, pyfile_local_path_partial, owner, repo, master
                     master_results[C_SUMMARY][C_TOTAL_CAT] = temp
         elif c[GH_FILE_TYPE] == "tree":
             # If it is a directory, drill down
-            print("dir: {}".format(c[GH_FILE_NAME])) # Status update printed to console
+            print("    dir: {}".format(c[GH_FILE_NAME])) # Status update printed to console
             check_tree_contents(get_tree(owner, repo, c[GH_SHA]).json()[GH_TREE],
                                 pyfile_local_path_partial + "/" + c[GH_FILE_NAME],
                                 owner,
@@ -242,44 +243,64 @@ def main(argv):
     token = input("OAuth token: ")
     check_input(token, "That is not a valid token. Please obtain an OAuth token from GitHub.")
 
-    owner = input("Repo Owner: ")
-    #check_input(owner, "That is not a valid owner username. Please double-check your input.")
-    repo = input("Repository Name: ")
-    #check_input(repo, "That is not a valid repository name. Please double-check your input.")
-
-    # Get the repo
-    repo_resp = get_repo(owner, repo)
-    repo_json_dict = collect_repo_json_dict(repo_resp.json())
-    def_branch = repo_resp.json()[GH_DEFAULT_BRANCH] # TODO: only explores default branch
-
-    # Get the default branch of the repo
-    branch_resp = get_branch(owner, repo, def_branch)
-    current_url = def_branch
-    pyfile_local_path_partial = LOCAL_PATH + "/" + repo + "/" + current_url
-    main_sha = branch_resp.json()[GH_BRANCH_COMMIT][GH_SHA] # The SHA of the most recent commit to the default branch
-
-    print(main_sha)
-
-    # Get the tree for the default branch
-    tree_resp = get_tree(owner, repo, main_sha)
-    analysis_results = check_tree_contents(tree_resp.json()[GH_TREE], pyfile_local_path_partial, owner, repo)
-    repo_json_dict[C_REPO_ANALYSIS] = analysis_results
-
-    # for DEBUG
-    master_name = owner + "/" + repo
-    master_dict = {master_name: repo_json_dict}
-    master_json = json.dumps(master_dict)
-
-    print(master_json)
+    """mult = ""
+    while mult != "y" and mult != "n":
+        mult = input("Would you like to analyze multiple repositories? [y/n]")
+    if mult == "n":
+        owner = input("Repo Owner: ")
+        #check_input(owner, "That is not a valid owner username. Please double-check your input.")
+        repo = input("Repository Name: ")
+        #check_input(repo, "That is not a valid repository name. Please double-check your input.")"""
 
     mdb_name = input("MongoDB username: ")
     mdb_password = input("MongoDB password: ")
     mdb_cluster = input("MongoDB cluster: ")
     mdb_database = input("MongoDB database: ")
-    print(write_to_mongodb(mdb_name, mdb_password, mdb_cluster, mdb_database, master_name, repo_json_dict))
 
-    print("archival: ")
-    return master_json
+    file_name = input("File Name: ")
+    infile = open(file_name, "r")
+    lines = infile.readlines()
+
+    for i in range(len(lines)):
+        if (lines[i].startswith("#")):
+            continue
+        temp = re.split("/|\n", lines[i])
+        owner = temp[0]
+        repo = temp[1]
+        print("Analyzing " + owner + "'s " + repo + " repository...")
+
+        # Get the repo
+        repo_resp = get_repo(owner, repo)
+        repo_json_dict = collect_repo_json_dict(repo_resp.json())
+        def_branch = repo_resp.json()[GH_DEFAULT_BRANCH] # TODO: only explores default branch
+
+        # Get the default branch of the repo
+        branch_resp = get_branch(owner, repo, def_branch)
+        current_url = def_branch
+        pyfile_local_path_partial = LOCAL_PATH + "/" + repo + "/" + current_url
+        main_sha = branch_resp.json()[GH_BRANCH_COMMIT][GH_SHA] # The SHA of the most recent commit to the default branch
+
+        print(main_sha)
+
+        # Get the tree for the default branch
+        tree_resp = get_tree(owner, repo, main_sha)
+        analysis_results = check_tree_contents(tree_resp.json()[GH_TREE], pyfile_local_path_partial, owner, repo)
+        repo_json_dict[C_REPO_ANALYSIS] = analysis_results
+
+        # for DEBUG
+        master_name = owner + "/" + repo
+        master_dict = {master_name: repo_json_dict}
+        master_json = json.dumps(master_dict)
+
+        print(master_json)
+
+        print(write_to_mongodb(mdb_name, mdb_password, mdb_cluster, mdb_database, master_name, repo_json_dict))
+        print("Finished analyzing " + owner + "'s " + repo + " repository. Wrote results to MongoDB.")
+
+    #print("archival: ")
+    #return master_json
+
+
 
 
 if __name__ == '__main__':
