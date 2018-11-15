@@ -14,6 +14,13 @@ LINE_LENGTH_ERRORS = ["E501"]
 BLANK_LINE_ERRORS = ["E301", "E302", "E303", "E304", "E305", "E306"]
 IMPORT_ERRORS = ["E401", "E402"]
 
+NAMES = "naming"
+INDENTS = "indentation"
+TABS = "tabs_vs_spaces"
+LENGTH = "line_length"
+BLANKS = "blank_lines"
+IMPORTS = "import"
+ENCODING = "file_encoding"
 
 def error_msg(report, prefix):
     msg = report.get_statistics(prefix)[0]
@@ -86,7 +93,7 @@ def count_total_file_errors(dict):
     for d in dict.keys():
         if dict[d] is None:
             pass
-        elif d is "naming_analysis":
+        elif d is NAMES + "_analysis":
             for type in dict[d].keys():
                 count += dict[d][type]["occurrences"]
         else:
@@ -106,15 +113,16 @@ def create_json_dict(counters, report, file_name):
     length = json_check_errors(counters, report, LINE_LENGTH_ERRORS)
     blanks = json_check_errors(counters, report, BLANK_LINE_ERRORS)
     imports = json_check_errors(counters, report, IMPORT_ERRORS)
-    obj["naming_analysis"] = names[0]
-    obj["indentation_analysis"] = indents[0]
-    obj["tabs_vs_spaces_analysis"] = tabs[0]
-    obj["line_length_analysis"] = length[0]
-    obj["blank_lines_analysis"] = blanks[0]
-    obj["imports_analysis"] = imports[0]
-    obj["file_encoding_analysis"] = None
-    obj["total_file_errors"] = names[1] +indents[1] + tabs[1] + length[1] + blanks[1] + imports[1]
-    return obj
+    obj[NAMES + "_analysis"] = names[0]
+    obj[INDENTS + "_analysis"] = indents[0]
+    obj[TABS + "_analysis"] = tabs[0]
+    obj[LENGTH + "_analysis"] = length[0]
+    obj[BLANKS + "_analysis"] = blanks[0]
+    obj[IMPORTS + "_analysis"] = imports[0]
+    obj[ENCODING + "_analysis"] = None
+    obj["total_file_errors"] = names[1] + indents[1] + tabs[1] + length[1] + blanks[1] + imports[1]
+    err_counts = {NAMES: names[1], INDENTS: indents[1], TABS: tabs[1], LENGTH: length[1], BLANKS: blanks[1], IMPORTS: imports[1]}
+    return obj, err_counts
 
 
 def collect_file_dict_results(file_name):
@@ -149,7 +157,9 @@ def main(argv):
     # TODO: pycodestyle always throws EXTRANEOUS_WHITESPACE_REGEX ?
     file_name = argv[0]
     check_input(file_name)
-    res = collect_file_dict_results(file_name)
+    temp = collect_file_dict_results(file_name)
+    res = temp[0]
+    err_counts = temp[1]
     print(json.dumps(res))
     return res
 

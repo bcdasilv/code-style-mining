@@ -1,5 +1,7 @@
 import base64
+from collections import defaultdict
 from datetime import datetime
+from itertools import chain
 import json
 import pymongo
 import os
@@ -34,6 +36,7 @@ GH_URL = "url"
 PYFILE_CONTENTS = "content"
 FILE_RESULTS_DICT = 0
 FILE_RESULTS_LOCAL_PATH = 1
+FILE_RESULTS_ERRS = 2
 
 # Custom JSON field names
 C_FILE_NAME = "file_name"
@@ -51,8 +54,24 @@ C_REPO_PRIVATE = "private"
 C_REPO_ANALYSIS = "repo_analysis"
 C_SHA = "sha"
 C_SIZE = "size"
+C_SUMMARY = "summary"
+C_TOTAL_CAT = "total_category_errors"
+C_TOTAL_FILE = "total_file_errors"
+C_TOTAL_REPO = "total_repo_errors"
 C_TYPE = "type"
 C_URL = "url"
+
+
+NAMES = "naming"
+INDENTS = "indentation"
+TABS = "tabs_vs_spaces"
+LENGTH = "line_length"
+BLANKS = "blank_lines"
+IMPORTS = "import"
+ENCODING = "file_encoding"
+C_DEF_SUMMARY = {C_SUMMARY:
+                     {C_TOTAL_REPO: 0,
+                      C_TOTAL_CAT: {NAMES: 0, INDENTS: 0, TABS: 0, LENGTH: 0, BLANKS: 0, IMPORTS: 0}}}
 
 # MongoDB field names
 MDB_ID = "_id"
@@ -106,11 +125,12 @@ def process_file(blob, pyfile_local_path_partial):
                     C_URL: pyfile_json[GH_URL],
                     C_PROCESSED: str(datetime.now())}
     # Add the file analysis results
-    dict_results.update(analysis.collect_file_dict_results(pyfile_local_path_full))
-    return dict_results, pyfile_local_path_full
+    analysis_results = analysis.collect_file_dict_results(pyfile_local_path_full)
+    dict_results.update(analysis_results[0])
+    return dict_results, pyfile_local_path_full, analysis_results[1]
 
 
-def check_tree_contents(contents, pyfile_local_path_partial, owner, repo, master_results={}):
+def check_tree_contents(contents, pyfile_local_path_partial, owner, repo, master_results=C_DEF_SUMMARY):
     for c in contents:
         if c[GH_FILE_TYPE] == "blob":
             if c[GH_FILE_NAME].endswith(FILE_EXTENSION): # If it is a Python file, run the analysis
@@ -124,6 +144,13 @@ def check_tree_contents(contents, pyfile_local_path_partial, owner, repo, master
                     start_gh_path = local_path.find(local_prefix) + len(local_prefix)
                     github_path = local_path[start_gh_path : len(local_path) - len(FILE_EXTENSION)]
                     master_results[github_path] = file_results[FILE_RESULTS_DICT]
+                    master_results[C_SUMMARY][C_TOTAL_REPO] += file_results[FILE_RESULTS_DICT][C_TOTAL_FILE]
+                    curr = master_results[C_SUMMARY][C_TOTAL_CAT]
+                    new = file_results[FILE_RESULTS_ERRS]
+                    temp = defaultdict(list)
+                    for a, b in chain(curr.items(), new.items()):
+                        temp[a] = curr[a] + b
+                    master_results[C_SUMMARY][C_TOTAL_CAT] = temp
         elif c[GH_FILE_TYPE] == "tree":
             # If it is a directory, drill down
             print("dir: {}".format(c[GH_FILE_NAME])) # Status update printed to console
