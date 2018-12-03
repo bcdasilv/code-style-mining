@@ -7,6 +7,7 @@ import pymongo
 import os
 import re
 import requests
+import shutil
 import sys
 
 import analysis
@@ -32,6 +33,7 @@ GH_REPO_PRIVATE = "private"
 GH_SHA = "sha"
 GH_SIZE = "size"
 GH_TREE = "tree"
+GH_TRUNCATED = "truncated"
 GH_URL = "url"
 
 PYFILE_CONTENTS = "content"
@@ -40,6 +42,8 @@ FILE_RESULTS_LOCAL_PATH = 1
 FILE_RESULTS_ERRS = 2
 
 # Custom JSON field names
+C_ANALYZED_COUNT = "analyzed_file_count"
+C_FILE_COUNT = "file_count"
 C_FILE_NAME = "file_name"
 C_FILE_PATH = "file_path"
 C_HTML_URL = "html_url"
@@ -71,7 +75,9 @@ BLANKS = "blank_lines"
 IMPORTS = "import"
 ENCODING = "file_encoding"
 C_DEF_SUMMARY = {C_SUMMARY:
-                     {C_TOTAL_REPO: 0,
+                     {C_FILE_COUNT: 0,
+                      C_ANALYZED_COUNT: 0,
+                      C_TOTAL_REPO: 0,
                       C_TOTAL_CAT: {NAMES: 0, INDENTS: 0, TABS: 0, LENGTH: 0, BLANKS: 0, IMPORTS: 0}}}
 
 # MongoDB field names
@@ -103,17 +109,33 @@ def get_tree(owner, repo, sha):
     tree_url = repo_url(owner, repo) + "/git/trees/" + sha
     return make_get_request(tree_url)
 
+def get_tree_recursive(owner, repo, sha):
+    tree_url = repo_url(owner, repo) + "/git/trees/" + sha + "?recursive=1"
+    return make_get_request(tree_url)
+
 def get_file(url):
     return make_get_request(url)
 
+def create_dirs(path):
+    folders = re.split("/", path)
+    acc_path = ""
+    for f in folders:
+        acc_path += f + "/"
+        if not os.path.exists(acc_path):
+            os.makedirs(acc_path)
+
+# Clone the file locally, run the analysis, and collect the results to be added to the JSON later
 def process_file(blob, pyfile_local_path_partial):
     pyfile_resp = get_file(blob[GH_URL])
     pyfile_json = pyfile_resp.json()
     pyfile_contents = base64.standard_b64decode(strip_newlines(pyfile_json[PYFILE_CONTENTS]))
-    # Clone the file locally
-    if not os.path.exists(pyfile_local_path_partial):
-        os.makedirs(pyfile_local_path_partial)
     pyfile_local_path_full = pyfile_local_path_partial + "/" + blob[GH_FILE_NAME]
+
+    path_without_file_name = pyfile_local_path_full[0:pyfile_local_path_full.rfind("/")]
+
+    # Clone the file locally
+    if not os.path.exists(path_without_file_name):
+        create_dirs(path_without_file_name)
     with open(pyfile_local_path_full, "wb") as f:
         f.write(pyfile_contents)
     # Run the analysis
@@ -128,12 +150,16 @@ def process_file(blob, pyfile_local_path_partial):
     # Add the file analysis results
     analysis_results = analysis.collect_file_dict_results(pyfile_local_path_full)
     dict_results.update(analysis_results[0])
+    # Delete the local copy of the file before returning analysis results
+    os.remove(pyfile_local_path_full)
     return dict_results, pyfile_local_path_full, analysis_results[1]
 
 
+# TODO: fix this to work properly. compare to recursive. add file count fields
 def check_tree_contents(contents, pyfile_local_path_partial, owner, repo, master_results=C_DEF_SUMMARY):
     for c in contents:
         if c[GH_FILE_TYPE] == "blob":
+            # TODO: don't process empty files
             if c[GH_FILE_NAME].endswith(FILE_EXTENSION): # If it is a Python file, run the analysis
                 print("    Python blob: {}".format(c[GH_FILE_NAME])) # Status update printed to console
                 file_results = process_file(c, pyfile_local_path_partial)
@@ -162,6 +188,36 @@ def check_tree_contents(contents, pyfile_local_path_partial, owner, repo, master
                                 master_results)
     return master_results
 
+def check_recursive_tree_contents(contents, pyfile_local_path_partial, owner, repo, master_results=C_DEF_SUMMARY):
+    file_count = 0
+    analyzed_count = 0
+    for c in contents:
+        if c[GH_FILE_TYPE] == "blob":
+            file_count += 1
+            if c[GH_FILE_NAME].endswith(FILE_EXTENSION) and c[GH_SIZE] is not 0: # If it is a non-empty Python file, run the analysis
+                analyzed_count += 1
+                print("    Python blob: {}".format(c[GH_FILE_NAME])) # Status update printed to console
+                file_results = process_file(c, pyfile_local_path_partial)
+                local_path = file_results[FILE_RESULTS_LOCAL_PATH]
+                if local_path in master_results.keys():
+                    raise Exception("A file with the path {} already exists.".format(local_path))
+                else:
+                    local_prefix = LOCAL_PATH + "/" + repo + "/"
+                    start_gh_path = local_path.find(local_prefix) + len(local_prefix)
+                    github_path = local_path[start_gh_path : len(local_path) - len(FILE_EXTENSION)]
+                    master_results[re.sub("[.]", "", github_path)] = file_results[FILE_RESULTS_DICT]
+                    master_results[C_SUMMARY][C_TOTAL_REPO] += file_results[FILE_RESULTS_DICT][C_TOTAL_FILE]
+                    curr = master_results[C_SUMMARY][C_TOTAL_CAT]
+                    new = file_results[FILE_RESULTS_ERRS]
+                    temp = defaultdict(list)
+                    for a, b in chain(curr.items(), new.items()):
+                        temp[a] = curr[a] + b
+                    master_results[C_SUMMARY][C_TOTAL_CAT] = temp
+    master_results[C_SUMMARY][C_FILE_COUNT] = file_count
+    master_results[C_SUMMARY][C_ANALYZED_COUNT] = analyzed_count
+    # Remove the local clone of the file directories before returning
+    shutil.rmtree(LOCAL_PATH + "/" + repo)
+    return master_results
 
 # Returns a dictionary of the Login, Node ID, URL, HTML URL, and Type
 # Used for Owner and Organization objects
@@ -190,7 +246,8 @@ def collect_repo_json_dict(resp):
         repo_dict[C_REPO_ORG] = collect_repo_simple_dict(resp[GH_REPO_ORG])
     return repo_dict
 
-
+# Write data to a cluster's database with a specific collection name
+# Authenticate with given username and password
 def write_to_mongodb(mongodb_user, mongodb_password, cluster, db_name, coll_name, data):
     client = pymongo.MongoClient(
         "mongodb+srv://" + mongodb_user + ":" + mongodb_password + "@" + cluster + "/test?retryWrites=true"
@@ -209,7 +266,7 @@ def check_input(str, msg):
     if not str.isalnum():
         raise ValueError(msg)
 
-
+# TODO: update this to be consistent with main? or delete it entirely
 def get_repo_results(owner, repo):
     global token
     token = input("OAuth token: ")
@@ -230,6 +287,8 @@ def get_repo_results(owner, repo):
     tree_resp = get_tree(owner, repo, main_sha)
     analysis_results = check_tree_contents(tree_resp.json()[GH_TREE], pyfile_local_path_partial, owner, repo)
     repo_json_dict[C_REPO_ANALYSIS] = analysis_results
+
+    tree_resp2 = get_tree_recursive(owner, repo, main_sha)
 
     master_name = owner + "/" + repo
     master_dict = {master_name: repo_json_dict}
@@ -262,7 +321,7 @@ def main(argv):
     lines = infile.readlines()
 
     for i in range(len(lines)):
-        if (lines[i].startswith("#")):
+        if lines[i].startswith("#") or lines[i].startswith(" ") or lines[i] is "" or lines[i] is "\n":
             continue
         temp = re.split("/|\n", lines[i])
         owner = temp[0]
@@ -280,25 +339,23 @@ def main(argv):
         pyfile_local_path_partial = LOCAL_PATH + "/" + repo + "/" + current_url
         main_sha = branch_resp.json()[GH_BRANCH_COMMIT][GH_SHA] # The SHA of the most recent commit to the default branch
 
-        print(main_sha)
-
-        # Get the tree for the default branch
-        tree_resp = get_tree(owner, repo, main_sha)
-        analysis_results = check_tree_contents(tree_resp.json()[GH_TREE], pyfile_local_path_partial, owner, repo)
+        tree_resp = get_tree_recursive(owner, repo, main_sha)
+        if tree_resp.json()[GH_TRUNCATED] is True:
+            # Get the tree for the default branch
+            tree_resp = get_tree(owner, repo, main_sha)
+            analysis_results = check_tree_contents(tree_resp.json()[GH_TREE], pyfile_local_path_partial, owner, repo)
+        else:
+            analysis_results = check_recursive_tree_contents(tree_resp.json()[GH_TREE], pyfile_local_path_partial, owner, repo)
         repo_json_dict[C_REPO_ANALYSIS] = analysis_results
 
-        # for DEBUG
         master_name = owner + "/" + repo
         master_dict = {master_name: repo_json_dict}
         master_json = json.dumps(master_dict)
 
         print(master_json)
 
-        print(write_to_mongodb(mdb_name, mdb_password, mdb_cluster, mdb_database, master_name, repo_json_dict))
+        write_to_mongodb(mdb_name, mdb_password, mdb_cluster, mdb_database, master_name, repo_json_dict)
         print("Finished analyzing " + owner + "'s " + repo + " repository. Wrote results to MongoDB.")
-
-    #print("archival: ")
-    #return master_json
 
 
 
