@@ -38,6 +38,7 @@
 #drduh/macOS-Security-and-Privacy-Guide
 #eliangcs/http-prompt
 #encode/django-rest-framework
+#eragonruan/text-detection-ctpn
 #eriklindernoren/ML-From-Scratch
 #exercism/python
 #explosion/spaCy
@@ -171,6 +172,7 @@
 #Tencent/PocketFlow
 #tensorflow/ranking
 #tensorflow/tensorflow
+#tensorlayer/srgan
 #tflearn/tflearn
 #Theano/Theano
 #timothycrosley/hug
@@ -186,9 +188,14 @@
 #Uberi/speech_recognition
 #wagtail/wagtail
 #wangshub/wechat_jump_game
+#WeblateOrg/weblate
 #vespene-io/vespene
 #vinta/awesome-python
 #wonderfulsuccess/weixin_crawler
+#WZBSocialScienceCenter/geovoronoi
+#WZBSocialScienceCenter/otreeutils
+#WZBSocialScienceCenter/pdftabextract
+#WZBSocialScienceCenter/tmtoolkit
 #yeasy/docker_practice
 #ytisf/theZoo
 #yunjey/pytorch-tutorial
@@ -205,6 +212,7 @@
 
 
 #Errors:
+#ab77/netflix-proxy SyntaxError
 #AKSHAYUBHAT/DeepVideoAnalytics SyntaxError
 #andresriancho/w3af SyntaxError
 #ansible/ansible SyntaxError
@@ -222,10 +230,15 @@
 #cleardusk/3DDFA SyntaxError: invalid syntax
 #cloudera/hue SyntaxError
 #cloud-custodian/cloud-custodian SyntaxError
+#ctfs/write-ups-2013 SyntaxError
 #ctfs/write-ups-2014 SyntaxError
+#ctfs/write-ups-2017 SyntaxError
+#ctfs/write-ups-tools SyntaxError
 #danmacnish/cartoonify SyntaxError
+#deepchem/deepchem SyntaxError
 #ecthros/uncaptcha SyntaxError
 #edx/edx-platform SyntaxError: print
+#enigmampc/catalyst SyntaxError
 #fireeye/flare-emu SyntaxError
 #freeCodeCamp/python-coding-challenges SyntaxError
 #geekcomputers/Python SyntaxError
@@ -242,12 +255,14 @@
 #google/rekall SyntaxError
 #google/roboto SyntaxError
 #google/upvote SyntaxError
+#googlei18n/noto-emoji SyntaxError: inconsistent use of tabs and spaces in indentation
 #google-research/autoconj SyntaxError
 #google-research/google-research
 #GoogleCloudPlatform/python-docs-samples SyntaxError
 #gregmalcolm/python_koans SyntaxError
 #HelloZeroNet/ZeroNet SyntaxError
 #hillcb/softcon-level-design SyntaxError
+#huhamhire/huhamhire-hosts SyntaxError
 #hzy46/Deep-Learning-21-Examples SyntaxError
 #IBM/plex SyntaxError
 #ipython/ipython UnicodeDecodeError
@@ -277,6 +292,7 @@
 #python-trio/trio SyntaxError
 #pytorch/pytorch SyntaxError: Missing parentheses
 #pytroll/satpy SyntaxError
+#QQuick/Transcrypt SyntaxError
 #quantopian/zipline SyntaxError
 #rbgirshick/py-faster-rcnn SyntaxError
 #Rochester-NRT/RocAlphaGo SyntaxError
@@ -301,6 +317,7 @@
 #waditu/tushare SyntaxError
 #wifiphisher/wifiphisher SyntaxError
 #XX-net/XX-Net SyntaxError
+#x0rz/EQGRP_Lost_in_Translation SyntaxError
 #yhat/ggpy SyntaxError
 #zalandoresearch/probrnn SyntaxError: print
 #zalandoresearch/salm SyntaxError: print missing parentheses
