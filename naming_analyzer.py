@@ -31,10 +31,8 @@ OCCURS = "occurrences"
 class FuncLister(ast.NodeVisitor):
     def visit_FunctionDef(self, node):
         collect_function_names(node.name)
-        #print("Function: " + node.name + "; " + check_name_style(node.name))
         self.generic_visit(node)
     def visit_ClassDef(self, node):
-        #print("Class: " + node.name + "; " + check_name_style(node.name))
         collect_class_names(node.name)
         self.generic_visit(node)
 
@@ -43,18 +41,18 @@ def check_name_style(s):
     if ind is not -1: # TODO: __init__ cases?
         if s.islower():
             return SNAKE_LOWER
-        elif s.isupper():
+        if s.isupper():
             return SNAKE_UPPER
-        elif s.istitle():
+        if s.istitle():
             return SNAKE_CW
         else:
             return SNAKE_MIXED
     else:
         if s.islower():
             return LOWER
-        elif s.isupper():
+        if s.isupper():
             return UPPER
-        elif s[0:1].isupper():
+        if s[0:1].isupper():
             return CW
         else:
             return MIXED
@@ -92,8 +90,10 @@ def check_function_names():
 
 def collect_json_dict(classes, funcs):
     count = 0
-    d = {CLASSES: {COUNT: len(CLASS_NAMES), PEP: classes[TUP_PEP], GOOGLE: classes[TUP_GOOG], OCCURS: classes[TUP_COUNT]},
-         FUNCS:{COUNT: len(FUNC_NAMES), PEP: funcs[TUP_PEP], GOOGLE: funcs[TUP_GOOG], OCCURS: classes[TUP_COUNT]}}
+    d = {CLASSES: {COUNT: len(CLASS_NAMES), PEP: classes[TUP_PEP],
+                   GOOGLE: classes[TUP_GOOG], OCCURS: classes[TUP_COUNT]},
+         FUNCS:{COUNT: len(FUNC_NAMES), PEP: funcs[TUP_PEP],
+                GOOGLE: funcs[TUP_GOOG], OCCURS: classes[TUP_COUNT]}}
     for key in d.keys():
         count += d[key][OCCURS]
     return d, count
