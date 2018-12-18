@@ -209,7 +209,41 @@
 #zotroneneis/magical_universe
 #zulip/zulip
 #1991viet/QuickDraw
-
+#malwaredllc/byob
+#jarun/ddgr
+#pubnub/python
+#dabeaz/python-cookbook
+#facebookarchive/python-instagram
+#hussien89aa/PythonTutorial
+#mongodb/mongo-python-driver
+#sammchardy/python-binance
+#watson-developer-cloud/python-sdk
+#jerry-git/learn-python3
+#bear/python-twitter
+#yasoob/intermediatePython
+#python-openxml/python-docx
+#shadowsocksr-backup/shadowsocksr
+#twilio/twilio-python
+#googlemaps/google-maps-services-python
+#andymccurdy/redis-py
+#trekhleb/learn-python
+#slackapi/python-slackclient
+#realpython/python-scripts
+#danpaquin/coinbasepro-python
+#mne-tools/mne-python
+#Russell91/pythonpy
+#datastax/python-driver
+#dronekit/dronekit-python
+#prompt-toolkit/python-prompt-toolkit
+#bokeh/bokeh
+#lincolnloop/python-qrcode
+#sendgrid/sendgrid-python
+#veox/python3-krakenex
+#mvantellingen/python-zeep
+#Kill-Console/PythonShootGame
+#influxdata/influxdb-python
+#secdev/scapy
+#daviddrysdale/python-phonenumbers
 
 #Errors:
 #ab77/netflix-proxy SyntaxError
@@ -322,6 +356,162 @@
 #zalandoresearch/probrnn SyntaxError: print
 #zalandoresearch/salm SyntaxError: print missing parentheses
 #zalandoresearch/spatial_gan SyntaxError
-
+#smilejay/python SyntaxError
+#dpkp/kafka-python SyntaxError
+#kivy/python-for-android SyntaxError
+#qiwsir/StarterLearningPython SyntaxError
+#Miserlou/Zappa SyntaxError
+#gitpython-developers/GitPython SyntaxError
+#tgalal/yowsup SyntaxError
+#Novice-Paradigm/Python SyntaxError
+#4rsh/python SyntaxError
+#mikemaccana/python-docx SyntaxError
+#0rpc/zerorpc-python SyntaxError
+#ocelma/python-recsys SyntaxError
+#361way/python SyntaxError
+#PythonJS/PythonJS SyntaxError
+#LevPasha/Instagram-API-python PythonJS/PythonJS SyntaxError
+#swaroopch/byte-of-python SyntaxError
 
 # Pending:
+facebookresearch/pytext
+facebookresearch/corefnmn
+facebookresearch/DrQA
+facebookresearch/loop
+facebookresearch/InferSent
+facebookresearch/UnsupervisedMT
+facebookresearch/SentEval
+facebookresearch/DME
+facebookresearch/VideoPose3D
+facebookresearch/fbooja
+facebookresearch/EmbodiedQA
+facebookresearch/fastMRI
+facebookresearch/adversarial_image_defenses
+facebookresearch/DetectAndTrack
+facebookresearch/poincare-embeddings
+facebookresearch/deepcluster
+facebookresearch/video-nonlocal-net
+facebookresearch/Audio2BodyDynamics
+facebookresearch/MUSE
+facebookresearch/ResNeXt
+facebookresearch/pythia
+facebookresearch/supervision-by-registration
+facebookresearch/VMZ
+facebookresearch/CommAI-env
+facebookresearch/py2bpf
+facebookresearch/multipathnet
+facebookresearch/pysparnn
+facebookresearch/FaderNetworks
+facebookresearch/clevr-iep
+google/subpar
+google/capirca
+google/docker-explorer
+google/svcca
+google/clusterfuzz-tools
+google/containerregistry
+google/seq2seq
+google/compare_gan
+google/active-qa
+google/ffn
+google/sanitizers
+google/nucleus
+google/uis-rnn
+google/loaner
+google/mobly
+google/mozc-devices
+google/nogotofail
+google/tangent
+google/swift-jupyter
+google/cauliflowervest
+google/sre_yield
+google/spatial-media
+google/pinject
+google/budou
+google/transitfeed
+google/kasane
+google/usbinfo
+google/aiyprojects-raspbian
+google/apitools
+google/python-subprocess32
+google/textfsm
+google/unrestricted-adversarial-examples
+google/gin-config
+google/youtube-8m
+google/stereo-magnification
+google/sg2im
+google/diff-match-patch
+google/simian
+google/gif-for-cli
+google/fplutil
+google/enjarify
+google/in-silico-labeling
+google/ssl_logger
+google/glazier
+google/tf_mesh_renderer
+google/gmail-oauth2-tools
+google/import-mailbox-to-gmail
+google/encrypted-bigquery-client
+google/macops
+google/active-learning
+google/python-gflags
+google/apis-client-generator
+google/pygtrie
+google/prettytensor
+google/pywebsocket
+google/pyringe
+Microsoft/TextWorld
+Microsoft/NimbusML
+Microsoft/vsts-cli
+Microsoft/ptvsd
+Microsoft/MMdnn
+Microsoft/botbuilder-python
+Microsoft/singleshotpose
+Microsoft/samples-for-ai
+Microsoft/Cognitive-Face-Python
+Microsoft/human-pose-estimation.pytorch
+Microsoft/ivy
+Microsoft/knack
+Microsoft/dowhy
+Microsoft/mssql-scripter
+Microsoft/gated-graph-neural-network-samples
+Microsoft/FERPlus
+oracle/oci-cli
+oracle/oci-python-sdk
+intel/CPU-Manager-for-Kubernetes
+intel/webml-polyfill
+intel/owca
+intel/bmap-tools
+Netflix/lemur
+Netflix/repokid
+Netflix/security_monkey
+Netflix/pygenie
+Netflix/sureal
+Netflix/animator
+Netflix/bless
+Netflix/hubcommander
+Netflix/stethoscope
+Netflix/brutal
+apple/swift-integration-tests
+apple/swift-source-compat-suite
+apple/coremltools
+apple/ccs-pycalendar
+apple/ccs-calendarserver
+capitalone/giraffez
+IBM/watson-online-store
+IBM/AIF360
+IBM/pytorch-seq2seq
+IBM/tensorflow-hangul-recognition
+Comcast/ansible-sdkman
+Comcast/ansible
+Comcast/ansible-modules-extras
+Comcast/ansible-modules-core
+Comcast/moto
+Comcast/openshift-ansible
+Comcast/python-consul
+Comcast/readthedocs.org
+PfizerRD/MultiQC
+apache/libcloud
+apache/incubator-spot
+apache/bloodhound
+apache/predictionio-sdk-python
+github/octodns
