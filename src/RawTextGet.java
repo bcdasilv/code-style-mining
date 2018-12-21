@@ -11,9 +11,10 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class RawTextGet {
-
-	static final String springboot = "https://api.github.com/repos/ShaneVill8/Calculator/branches/master";
-	static final String treeURL = "https://api.github.com/repos/ShaneVill8/Calculator/git/trees/";
+	static final String newTempFile = "/Users/user/Desktop/400/newFile.java"; // CHANGE FOR USERS LOCAL 
+	static final String springboot = "https://api.github.com/repos/pagseguro/java/branches/master"; // NOT ALWAYS MASTER 
+	static final String treeURL = "https://api.github.com/repos/pagseguro/java/git/trees/";
+	static final String tempToken = "";
 	
 	public void testAPI() {
 		
@@ -21,18 +22,19 @@ public class RawTextGet {
 		ArrayList<String> urls = new ArrayList<String>();
 		FileParser fp = new FileParser();
 		
+		//fp.parseFile("/Users/user/Desktop/400/newFile.java");
+		
 		int i = 0;
 		if (firstSHA != null) {
 			urls = startTreeTraversal(treeURL + firstSHA + "?recursive=1");
 		}
 
-		for(i = 0; i < urls.size(); i++){
+		for(; i < urls.size(); i++){
+			//System.out.println("here");
 			String x = urls.get(i);
 			x = x.replace("\\n", "");
 			byte[] valueDecoded = Base64.decodeBase64(x);
 			String pwd = createFile(new String(valueDecoded));
-			
-//			String[] y = new String(valueDecoded).split("\\n");
 			fp.parseFile(pwd);
 		}
 	}
@@ -92,11 +94,18 @@ public class RawTextGet {
 				} 
 			}
 		}
+
 		return pathURL;
 	}
 	
 	public String decodeContent(String url) {
-		String new_url = url.substring(7, url.length() - 2);
+		String new_url;
+		if(url.endsWith("]")) {
+			new_url = url.substring(7, url.length() - 3);
+		}
+		else {
+			new_url = url.substring(7, url.length() - 2);
+		}
 		String rawContent = null;
 	
 		String response = makeGetRequest(new_url);
@@ -123,7 +132,8 @@ public class RawTextGet {
 			URL springboot = new URL(url);
 			HttpURLConnection conn = (HttpURLConnection)springboot.openConnection();
 			
-			conn.setRequestProperty("Content-Type","application/json");
+//			conn.setRequestProperty("Content-Type","application/json");
+			conn.setRequestProperty("Authorization", "token " + tempToken);//NEEDS TOKEN 
 			conn.setDoOutput(true);
 			conn.setDoInput(true);
 			conn.setRequestMethod("GET");
@@ -148,9 +158,8 @@ public class RawTextGet {
 		  FileOutputStream fos = null;
 	      File file = null;
 	      String mycontent = content;
-	      String x = "/Users/user/Desktop/400/newFile.java";
 	      try {
-			  file = new File(x);
+			  file = new File(newTempFile);
 			  fos = new FileOutputStream(file);
 
 			  if (!file.exists()) {
@@ -174,6 +183,6 @@ public class RawTextGet {
 			     System.out.println("Error in closing the Stream");
 			  }
 	       }
-		return x;
+		return newTempFile;
 	}
 }
