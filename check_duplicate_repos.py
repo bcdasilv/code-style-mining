@@ -5,18 +5,18 @@ file_name = "v02.txt" #TODO: parameterize
 def check_duplicate_repos():
     infile = open(file_name, 'r')
     lines = infile.readlines()
+    duplicate = False
     for i in range(len(lines)):
         if lines[i].startswith(" ") or lines[i] == "" or lines[i] == "\n":
             continue
         temp = lines[i]
         if temp.startswith("#"):
             temp = temp[1:len(temp)]
-        print(temp)
+        #print(temp)
         if check_duplicate_line(temp, lines, i+1):
             print("Duplicate repo found: ", temp)
-            return True
-    print("No duplicates")
-    return False
+            duplicate = True
+    return duplicate
 
 #TODO: It doesn't detect duplicates in the error section of the file
 def check_duplicate_line(line, lines, index):
