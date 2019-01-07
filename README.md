@@ -9,3 +9,10 @@ Currently this project examines repositories written in Java and Python. In the 
 To access a GitHub repository, you will need to acquire an OAuth token. [Here's how](https://help.github.com/articles/creating-a-personal-access-token-for-the-command-line/). (Though it is technically possible to query the GitHub API without this token, our program does not currently support this option due to the large volume of get requests our code makes.)
 
 If you want to save your results to MongoDB, you will also need your username, password, cluster, and database information.
+
+### Dependencies
+The following dependencies are necessary to run the python project. 
+*[dnspython](http://www.dnspython.org/)
+*[requests](http://docs.python-requests.org)
+*[pymongo](https://api.mongodb.com/python/current/)
+*[pycodestyle](https://pypi.org/project/pycodestyle/)
