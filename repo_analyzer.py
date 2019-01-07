@@ -138,8 +138,10 @@ def create_dirs(path):
 
 # Delete the local nested directories
 def delete_local_tree_clone(path):
-    shutil.rmtree(path)
-
+    try:
+        shutil.rmtree(path)
+    except FileNotFoundError:
+        pass
 
 # Returns a dictionary of the Login, Node ID, URL, HTML URL, and Type
 # Used for Owner and Organization objects
