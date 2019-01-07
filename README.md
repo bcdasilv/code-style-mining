@@ -12,7 +12,7 @@ If you want to save your results to MongoDB, you will also need your username, p
 
 ### Dependencies
 The following dependencies are necessary to run the python project. 
-*[dnspython](http://www.dnspython.org/)
-*[requests](http://docs.python-requests.org)
-*[pymongo](https://api.mongodb.com/python/current/)
-*[pycodestyle](https://pypi.org/project/pycodestyle/)
+* [dnspython](http://www.dnspython.org/)
+* [requests](http://docs.python-requests.org)
+* [pymongo](https://api.mongodb.com/python/current/)
+* [pycodestyle](https://pypi.org/project/pycodestyle/)
