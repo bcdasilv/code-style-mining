@@ -17,7 +17,7 @@ The following dependencies are necessary to run the python project.
 * [requests](http://docs.python-requests.org)
 * [pymongo](https://api.mongodb.com/python/current/)
 * [pycodestyle](https://pypi.org/project/pycodestyle/)   
-* [pycodestyle](https://docs.pytest.org/en/latest/)
+* [pytest](https://docs.pytest.org/en/latest/)
 
 These dependencies can be installed to a Python pipenv.
 Install these dependencies from the Pipfile with the command   
