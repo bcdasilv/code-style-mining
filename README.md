@@ -15,4 +15,12 @@ The following dependencies are necessary to run the python project.
 * [dnspython](http://www.dnspython.org/)
 * [requests](http://docs.python-requests.org)
 * [pymongo](https://api.mongodb.com/python/current/)
-* [pycodestyle](https://pypi.org/project/pycodestyle/)
+* [pycodestyle](https://pypi.org/project/pycodestyle/)   
+
+These dependencies can be install to a Python pipenv.
+Install these dependencies from the Pipfile with the command   
+```pipenv install```   
+Start the pipenv with   
+```pipenv shell```   
+Start the application   
+```python3 main.py <GitHub_OAuth_token> [-file <file_name>] [-mongodb <username> <password> <cluster> <database> <collection>]```
