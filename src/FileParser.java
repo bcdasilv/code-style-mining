@@ -30,14 +30,13 @@ public class FileParser {
 	
 	protected boolean wildCard;
 	protected boolean packageDecName;
-	protected ArrayList<Boolean> classWhiteSpace = new ArrayList<Boolean>();
-	protected ArrayList<BraceResults> braces = new ArrayList<BraceResults>();
-	protected ArrayList<Integer> linesExceeding = new ArrayList<Integer>();
-	protected ArrayList<MethodWhiteSpaceResults> methodWPs = new ArrayList<MethodWhiteSpaceResults>();
+	protected ArrayList<Boolean> classWhiteSpace = new ArrayList<>();
+	protected ArrayList<BraceResults> braces = new ArrayList<>();
+	protected ArrayList<Integer> linesExceeding = new ArrayList<>();
+	protected ArrayList<MethodWhiteSpaceResults> methodWPs = new ArrayList<>();
 	protected NameResults nr = new NameResults();
 	
 	public void parseFile(String f) {
-
 		FileInputStream in = null;
 		String[] linesOfFile = null;
 		
@@ -55,9 +54,7 @@ public class FileParser {
 		parsePkgDec(cu);
 		
 		List <ClassOrInterfaceDeclaration> classes = cu.findAll(ClassOrInterfaceDeclaration.class);
-
-		for (ClassOrInterfaceDeclaration item: classes) {
-
+		for(ClassOrInterfaceDeclaration item: classes) {
 			// parse class name
 			np.parseClassName(item.getNameAsString(), nr);
 			
@@ -109,24 +106,25 @@ public class FileParser {
 	}
 	
 	public JSONObject JSONify() {
-		
 		JSONObject file = new JSONObject();
 		JSONObject classJSON = new JSONObject();
-		
-		// file-specific attributes
-		file.put("import", wildCard);
-		file.put("package", packageDecName);
-		
-		// class attributes
-		JSONifyClassNames(classJSON);
-		JSONifyBlankLines(classJSON);
-		JSONifyConstants(classJSON);
-		JSONifyFields(classJSON, false, false);
-		JSONifyMethods(classJSON);
-		
-		// put class into file
-		file.put("class", classJSON);
-		
+		try {
+			// file-specific attributes
+			file.put("import", wildCard);
+			file.put("package", packageDecName);
+
+			// class attributes
+			JSONifyClassNames(classJSON);
+			JSONifyBlankLines(classJSON);
+			JSONifyConstants(classJSON);
+			JSONifyFields(classJSON, false, false);
+			JSONifyMethods(classJSON);
+
+			// put class into file
+			file.put("class", classJSON);
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
 		return file;
 		
 	}
@@ -144,10 +142,13 @@ public class FileParser {
 			}
 		} 
 
-		classNames.put("google", google);
-		classNames.put("other", other);
-		classJSON.put("naming", classNames);
-	
+		try {
+			classNames.put("google", google);
+			classNames.put("other", other);
+			classJSON.put("naming", classNames);
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public void JSONifyBlankLines(JSONObject classObject) {
@@ -155,7 +156,12 @@ public class FileParser {
 		for (boolean bool : classWhiteSpace) {
 			result &= bool;
 		}
-		classObject.put("blank_lines", result);
+
+		try {
+			classObject.put("blank_lines", result);
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public void JSONifyConstants(JSONObject classObject) {
@@ -171,12 +177,15 @@ public class FileParser {
 				other++;
 			}
 		}
-		
-		names.put("google", google);
-		names.put("other", other);
-		constants.put("naming", names);
-		classObject.put("constants", constants);
-		
+
+		try {
+			names.put("google", google);
+			names.put("other", other);
+			constants.put("naming", names);
+			classObject.put("constants", constants);
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public void JSONifyFields(JSONObject parentObject, boolean local, boolean method) {
@@ -204,19 +213,23 @@ public class FileParser {
 				other++;
 			}
 		}
-		
-		names.put("google", google);
-		names.put("lower_snake_case", lowerSnake);
-		names.put("other", other);
-		
-		if (local) {
-			attribute.put("naming", names);
-			parentObject.put("variables", attribute);
-		} else if (method) {
-			parentObject.put("naming", names);
-		} else {
-			attribute.put("naming", names);
-			parentObject.put("fields", attribute);
+
+		try {
+			names.put("google", google);
+			names.put("lower_snake_case", lowerSnake);
+			names.put("other", other);
+
+			if (local) {
+				attribute.put("naming", names);
+				parentObject.put("variables", attribute);
+			} else if (method) {
+				parentObject.put("naming", names);
+			} else {
+				attribute.put("naming", names);
+				parentObject.put("fields", attribute);
+			}
+		} catch(Exception e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -239,15 +252,19 @@ public class FileParser {
 		if (methodWPs.size() > 0) {
 			avgIndent /= methodWPs.size();
 		}
-		
-		// start putting attributes to indentObject
-		indentObject.put("tabs", tabs)
-			.put("spaces", spaces)
-			.put("min_indent", minIndent)
-			.put("max_indent", maxIndent)
-			.put("avg_indent", avgIndent);
-		
-		methodObject.put("indents", indentObject);
+
+		try {
+			// start putting attributes to indentObject
+			indentObject.put("tabs", tabs)
+					.put("spaces", spaces)
+					.put("min_indent", minIndent)
+					.put("max_indent", maxIndent)
+					.put("avg_indent", avgIndent);
+
+			methodObject.put("indents", indentObject);
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
 		
 	}
 	
@@ -257,12 +274,16 @@ public class FileParser {
 		
 		JSONifyFields(methodObject, false, true);	// add method names
 		JSONifyIndents(methodObject); // indents
-		
-		methodObject.put("line_length", linesExceeding); // # of lines exceeding 
-		JSONifyFields(methodObject, true, false); // add local variables
-		JSONifyBraces(methodObject);
-		
-		classObject.put("methods", methodObject);
+
+		try {
+			methodObject.put("line_length", linesExceeding); // # of lines exceeding
+			JSONifyFields(methodObject, true, false); // add local variables
+			JSONifyBraces(methodObject);
+
+			classObject.put("methods", methodObject);
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
 			
 	}
 	
@@ -285,22 +306,25 @@ public class FileParser {
 			mEx_kr += br.MUL_EX_KR;
 			mOther += br.MUL_WEIRD;
 		}
-		
-		single.put("google", sGoogle)
-			.put("allman", sAllman)
-			.put("ex_kr", sEx_kr)
-			.put("other", sOther);
-		
-		multiple.put("google", mGoogle)
-			.put("allman", mAllman)
-			.put("ex_kr", mEx_kr)
-			.put("other", mOther);
-		
-		braceObject.put("single", single)
-			.put("multiple", multiple);
-	
-		methodObject.put("curly_braces", braceObject);
-		
+
+		try {
+			single.put("google", sGoogle)
+					.put("allman", sAllman)
+					.put("ex_kr", sEx_kr)
+					.put("other", sOther);
+
+			multiple.put("google", mGoogle)
+					.put("allman", mAllman)
+					.put("ex_kr", mEx_kr)
+					.put("other", mOther);
+
+			braceObject.put("single", single)
+					.put("multiple", multiple);
+
+			methodObject.put("curly_braces", braceObject);
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public void parsePkgDec(CompilationUnit cu) {

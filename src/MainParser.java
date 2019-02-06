@@ -5,27 +5,22 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.Repository;
 
 public class MainParser {
-
 	public static final String gitURL = "https://github.com/janani-sridhar/CaesarCipher";
 	public static final String directory = "/Users/jananisridhar/Desktop/CC";
 	public static final String localFile = "./RandomFile.java";
-	
+
 	public static FileParser fp = new FileParser();
 	
 	public static void main(String[] args) {
-
-		RawTextGet tester = new RawTextGet();
-		tester.testAPI();
-//		FileParser fp = new FileParser();
-//		fp.parseFile(localFile);
-
+		RepoTraversal tester = new RepoTraversal();
+		tester.findJavaFilesToParse();
 	}
 
 	public static void getGitFiles(String url, String directory) {
 		File gitFolder = new File(directory);
 		Git git = null;
 
-		if (!gitFolder.exists()) {
+		if(!gitFolder.exists()) {
 			try {
 				git = Git.cloneRepository()
 						.setURI( url )
@@ -33,10 +28,8 @@ public class MainParser {
 						.call();
 			} catch (GitAPIException e) {
 				e.printStackTrace();
-			}   
-
+			}
 		}
-
 		else {
 			try {
 				git = Git.open(gitFolder);
@@ -47,29 +40,25 @@ public class MainParser {
 
 		Repository repo = git.getRepository();		
 
-		for (File content : repo.getWorkTree().listFiles()) {
+		for(File content : repo.getWorkTree().listFiles()) {
 			classifyFiles(content);
-			
 		}
-			
 	}
 
 	public static void classifyFiles(File f) {
-
-		if (f.isFile()) {
-			if (f.getName().contains("java"))  
+		if(f.isFile()) {
+			if(f.getName().contains("java")) {
 				fp.parseFile(f.getAbsolutePath());
+			}
 		}
-
 		else {
-			for (File k: f.listFiles())
+			for(File k : f.listFiles()) {
 				classifyFiles(k);
+			}
 		}
-
 	}
 	
 	public static void analyzeResults() {
 		
 	}
-
 }
