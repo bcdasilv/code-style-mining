@@ -12,12 +12,14 @@ The structure of the .properties file is such:
 
 For the purposes of running the Java analysis code, one needs to supply the given information:
 
+- The personal auth token generated from GitHub.
+
 authToken = "\<auth token\>"
-- This is the personal auth token generated from GitHub.
+
+- The file path for the local storage of the file being parsed.
 
 tempFilePath = "\<temp file path>\"
-- This is the file path for the local storage of the file being parsed.
+
+- The :owner/:repo that is used in a GET through the GitHub API.
 
 repoURLsPath = "\<repo urls path\>"
-- This is the :owner/:repo that is used in a GET through the GitHub API.
-
