@@ -15,7 +15,6 @@ public class NameParser {
 	}
 	
 	public void parseFieldNames(List<FieldDeclaration> fields, NameResults nr) {
-		
 		String field;
 		String[] words;
 		ArrayList<String> wordList;
@@ -55,7 +54,6 @@ public class NameParser {
 	}
 	
 	public void parseMethodNames(List<MethodDeclaration> methods, NameResults nr) {
-		
 		String methodDec;
 		String methodNameWithParens;
 		String methodName;
@@ -74,7 +72,6 @@ public class NameParser {
 	}
 	
 	public void parseVariables(String[] methodLines, NameResults nr) {
-		
 		String name = null;	
 		for (int i = 0; i < methodLines.length; i++) {
 			if (!methodLines[i].trim().equals("")) {
@@ -105,7 +102,6 @@ public class NameParser {
 	// return 1 if lower_snake_case 
 	// return 2 if google style
 	public int parseName(String var, boolean constant, boolean isClass, boolean isPackage) {
-		
 		boolean isAlphaNumeric = true;
 		boolean isAlphaBetic = true;
 		boolean underscores = false;

@@ -1,13 +1,9 @@
 import java.io.*;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
-
 import java.util.ArrayList;
 import java.net.HttpURLConnection;
 import java.net.URL;
-
-//import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Base64;
 
 public class RepoTraversal {
@@ -17,31 +13,56 @@ public class RepoTraversal {
     public void findJavaFilesToParse() {
         ArrayList<String> repoURLs = getRepoURLsFromConfig();
         for(String url : repoURLs) {
-            traverseRepoForJavaFiles(url);
+            traverseRepoForFileContent(url);
         }
     }
 
-    private void traverseRepoForJavaFiles(String repoURL) {
+    public void storeFileLocally(String content) {
+        FileOutputStream fos = null;
+        File file;
         try {
-            ArrayList<String> urls = traverseTreeForFileURLs(repoURL);
-            for(String url : urls) {
-                getContentFromFileURL(url);
+            file = new File(tempFilePath);
+            if(!file.exists()) {
+                file.createNewFile();
             }
+            fos = new FileOutputStream(file);
+            byte[] bytesArray = content.getBytes();
+            fos.write(bytesArray);
+            fos.flush();
+        } catch(IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (fos != null) {
+                    fos.close();
+                }
+            }
+            catch(IOException e) {
+                System.out.println("Error in closing the Stream");
+            }
+        }
+    }
+
+    private void decodeAndParseFile(String content) {
+        try {
+            FileParser fp = new FileParser();
+            byte[] valueDecoded = Base64.decodeBase64(content);
+            storeFileLocally(new String(valueDecoded));
+            fp.parseFile();
         } catch(Exception e) {
             e.printStackTrace();
         }
     }
 
-    private void getContentFromFileURL(String url) {
+    private void traverseRepoForFileContent(String repoURL) {
         try {
-            JSONObject content = makeGetRequest(url);
-            String contentStr = content.getString("content");
-            contentStr = contentStr.replaceAll("\n", "");
-
-            FileParser fp = new FileParser();
-            byte[] valueDecoded = Base64.decodeBase64(contentStr);
-            String pwd = createFile(new String(valueDecoded));
-            fp.parseFile(pwd);
+            ArrayList<String> urls = traverseTreeForFileURLs(repoURL);
+            for(String url : urls) {
+                JSONObject content = makeGetRequest(url);
+                String contentStr = content.getString("content");
+                contentStr = contentStr.replaceAll("\n", "");
+                decodeAndParseFile(contentStr);
+            }
         } catch(Exception e) {
             e.printStackTrace();
         }
@@ -156,34 +177,5 @@ public class RepoTraversal {
             e.printStackTrace();
         }
         return urls;
-    }
-
-    public String createFile(String content) {
-        FileOutputStream fos = null;
-        File file = null;
-        try {
-            file = new File(tempFilePath);
-            if(!file.exists()) {
-                file.createNewFile();
-            }
-            fos = new FileOutputStream(file);
-            byte[] bytesArray = content.getBytes();
-
-            fos.write(bytesArray);
-            fos.flush();
-            System.out.println("File Written Successfully\n");
-        } catch(IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (fos != null) {
-                    fos.close();
-                }
-            }
-            catch(IOException e) {
-                System.out.println("Error in closing the Stream");
-            }
-        }
-        return tempFilePath;
     }
 }

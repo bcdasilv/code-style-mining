@@ -35,18 +35,19 @@ public class FileParser {
 	protected ArrayList<Integer> linesExceeding = new ArrayList<>();
 	protected ArrayList<MethodWhiteSpaceResults> methodWPs = new ArrayList<>();
 	protected NameResults nr = new NameResults();
+
+	private static final Config config = Config.getInstance();
+	private static final String tempFilePath = config.getTempFilePath();
 	
-	public void parseFile(String f) {
+	public void parseFile() {
 		FileInputStream in = null;
 		String[] linesOfFile = null;
-		
 		try {
-			in = new FileInputStream(new File(f));
-			linesOfFile = ph.readLines(f);
+			in = new FileInputStream(new File(tempFilePath));
+			linesOfFile = ph.readLines(tempFilePath);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
 		CompilationUnit cu = JavaParser.parse(in);
 
 		// look for asterisks in import statements and parse package declaration
@@ -67,14 +68,13 @@ public class FileParser {
 			// boolean to determine whether the whitespace inside a class follows google style
 			boolean classWPSoFar = true;
 			
-			// Iterate through each method in each class.
-			for (int i = 0; i < methods.size(); i++) {
-
+			// Iterate through each method in each class
+			for(int i = 0; i < methods.size(); i++) {
 				MethodDeclaration member = methods.get(i);
 				String name = member.getDeclarationAsString(true, true);
 				String[] methodBody = ph.getMethodBody(name, linesOfFile, 0);
 
-				if (i + 1 != methods.size()) {
+				if(i + 1 != methods.size()) {
 					classWPSoFar &= wp.parseWhiteSpaceBetweenMethods(linesOfFile, methodBody.length, i, methods);
 				}
 				
@@ -86,9 +86,7 @@ public class FileParser {
 				
 				np.parseVariables(methodBody, nr);
 			}
-			
 			classWhiteSpace.add(classWPSoFar);
-
 		}
 
 	}

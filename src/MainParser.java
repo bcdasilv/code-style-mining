@@ -16,7 +16,7 @@ public class MainParser {
 		tester.findJavaFilesToParse();
 	}
 
-	public static void getGitFiles(String url, String directory) {
+	/*public static void getGitFiles(String url, String directory) {
 		File gitFolder = new File(directory);
 		Git git = null;
 
@@ -43,9 +43,9 @@ public class MainParser {
 		for(File content : repo.getWorkTree().listFiles()) {
 			classifyFiles(content);
 		}
-	}
+	}*/
 
-	public static void classifyFiles(File f) {
+	/*public static void classifyFiles(File f) {
 		if(f.isFile()) {
 			if(f.getName().contains("java")) {
 				fp.parseFile(f.getAbsolutePath());
@@ -60,5 +60,5 @@ public class MainParser {
 	
 	public static void analyzeResults() {
 		
-	}
+	}*/
 }
