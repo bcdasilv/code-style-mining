@@ -7,15 +7,17 @@ One needs to create a file called javaAnalysis.properties file in the same direc
 The Config class communicates with this .properties file to supply information to the Java project.
 
 The structure of the .properties file is such:
-<name> = "<data>"
+
+\<name\> = "\<data\>"
 
 For the purposes of running the Java analysis code, one needs to supply the given information:
-authToken = "<auth token>"
+
+authToken = "\<auth token\>"
 - This is the personal auth token generated from GitHub.
 
-tempFilePath = "<temp file path>"
+tempFilePath = "\<temp file path>\"
 - This is the file path for the local storage of the file being parsed.
 
-repoURLsPath = "<repo urls path>"
+repoURLsPath = "\<repo urls path\>"
 - This is the :owner/:repo that is used in a GET through the GitHub API.
 
