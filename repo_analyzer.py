@@ -84,6 +84,16 @@ MDB_ID = "_id"
 
 TOKEN = None
 
+def reset_summary():
+    global C_DEF_SUMMARY
+    C_DEF_SUMMARY = {C_SUMMARY:
+                         {C_FILE_COUNT: 0,
+                          C_ANALYZED_COUNT: 0,
+                          C_TOTAL_REPO: 0,
+                          C_TOTAL_CAT: {NAMES: 0, INDENTS: 0, TABS: 0,
+                                        LENGTH: 0, BLANKS: 0, IMPORTS: 0}}}
+
+
 # Set the GitHub OAuth TOKEN used for get requests
 def set_oauth_token(oauth):
     global TOKEN
@@ -196,7 +206,7 @@ def process_file(blob, gh_path_partial):
                     C_URL: pyfile_json[GH_URL],
                     C_PROCESSED: str(datetime.now())}
     # Add the file analysis results
-    analysis_results = file_analyzer.collect_file_dict_results(pyfile_local_path_full)
+    analysis_results = file_analyzer.collect_file_dict_results(pyfile_local_path_full) # Syntax Error
     dict_results.update(analysis_results[0])
     # Delete the local copy of the file before returning analysis results
     os.remove(pyfile_local_path_full)
@@ -251,6 +261,7 @@ def analyze_repo(owner, repo):
     main_sha = branch_resp.json()[GH_BRANCH_COMMIT][GH_SHA]
 
     tree_resp = get_tree_recursive(owner, repo, main_sha)
+    #Syntax Error
     analysis_results = check_recursive_tree_contents(tree_resp.json()[GH_TREE],
                                                      gh_path_partial, repo)
     repo_json_dict[C_REPO_ANALYSIS] = analysis_results

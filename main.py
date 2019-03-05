@@ -1,11 +1,15 @@
 import json
 import re
 import sys
-
+import urllib.parse
 import pymongo
+import config
 
 from repo_analyzer import C_REPO_FULL_NAME, C_REPO_NAME, LOCAL_PATH, \
-    analyze_repo, delete_local_tree_clone, set_oauth_token
+    analyze_repo, delete_local_tree_clone, set_oauth_token, reset_summary
+from verify_repo_mongo import check_duplicate_repo
+import naming_analyzer as naming
+
 
 
 def print_err_msg(owner, repo, err_type, msg):
@@ -25,14 +29,17 @@ def read_from_file(file_name, output_setting, mdb_name, mdb_password, mdb_cluste
         owner = temp[0]
         repo = temp[1]
         try:
-            results = analyze_repo(owner, repo)
+            if check_duplicate_repo(owner, repo):
+                results = analyze_repo(owner, repo)
+                handle_output(output_setting, results, mdb_name,
+                              mdb_password, mdb_cluster, mdb_database, mdb_collection)
+            else:
+                print("The " + repo + " repository by " + owner + " has already been analyzed and uploaded to MongoDB. "
+                                      "Skipping analysis of this repository.")
         except SyntaxError as e:
             print_err_msg(owner, repo, "SyntaxError", e.msg)
         except UnicodeDecodeError as u:
             print_err_msg(owner, repo, "UnicodeDecodeError", u.reason)
-        else:
-            handle_output(output_setting, results, mdb_name,
-                          mdb_password, mdb_cluster, mdb_database, mdb_collection)
         # Remove the local clone of the file directories
         delete_local_tree_clone(LOCAL_PATH + "/" + repo)
 
@@ -117,6 +124,11 @@ def main(argv):
                 mdb_cluster = argv[mongodb_cmd_index + 3]
                 mdb_database = argv[mongodb_cmd_index + 4]
                 mdb_collection = argv[mongodb_cmd_index + 5]
+                config.mongo_name = mdb_name
+                config.mongo_password = mdb_password
+                config.mongo_collection = mdb_collection
+                config.mongo_database = mdb_database
+                config.mongo_cluster = mdb_cluster
             except IndexError:
                 print(usage_msg)
                 return
@@ -135,7 +147,6 @@ def main(argv):
             mdb_cluster = input("MongoDB cluster: ")
             mdb_database = input("MongoDB database: ")
             mdb_collection = input("MongoDB collection: ")
-
         if input_setting not in ('f', 'c'):
             input_setting = input("Input setting: Would you like to read the "
                                   "repos from a file [f] or from the console [c]? ")
@@ -155,7 +166,8 @@ def main(argv):
                 break
             repo = input("Repository name: ")
             try:
-                results = analyze_repo(owner, repo)
+                if check_duplicate_repo(owner, repo):
+                    results = analyze_repo(owner, repo)
             except SyntaxError as e:
                 print_err_msg(owner, repo, "SyntaxError", e.msg)
             except UnicodeDecodeError as u:

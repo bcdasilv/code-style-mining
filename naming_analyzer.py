@@ -77,22 +77,22 @@ def check_class_names():
     return pep, google, count
 
 def check_function_names():
-    pep = True
-    google = True
+    pep_temp = True
+    google_temp = True
     count = 0
     for name in FUNC_NAMES:
         style = check_name_style(name)
         if style is not SNAKE_LOWER and style is not LOWER:
-            pep = False
-            google = False
+            pep_temp = False
+            google_temp = False
             count += 1
-    return pep, google, count
+    return pep_temp, google_temp, count
 
 def collect_json_dict(classes, funcs):
     count = 0
     d = {CLASSES: {COUNT: len(CLASS_NAMES), PEP: classes[TUP_PEP],
                    GOOGLE: classes[TUP_GOOG], OCCURS: classes[TUP_COUNT]},
-         FUNCS:{COUNT: len(FUNC_NAMES), PEP: funcs[TUP_PEP],
+         FUNCS: {COUNT: len(FUNC_NAMES), PEP: funcs[TUP_PEP],
                 GOOGLE: funcs[TUP_GOOG], OCCURS: classes[TUP_COUNT]}}
     for key in d.keys():
         count += d[key][OCCURS]
