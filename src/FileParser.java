@@ -54,7 +54,7 @@ public class FileParser {
 		wildCardPresent(cu);
 		parsePkgDec(cu);
 		
-		List <ClassOrInterfaceDeclaration> classes = cu.findAll(ClassOrInterfaceDeclaration.class);
+		List<ClassOrInterfaceDeclaration> classes = cu.findAll(ClassOrInterfaceDeclaration.class);
 		for(ClassOrInterfaceDeclaration item: classes) {
 			// parse class name
 			np.parseClassName(item.getNameAsString(), nr);
@@ -77,8 +77,8 @@ public class FileParser {
 				if(i + 1 != methods.size()) {
 					classWPSoFar &= wp.parseWhiteSpaceBetweenMethods(linesOfFile, methodBody.length, i, methods);
 				}
-				
-				System.out.printf("\nParsing method %s -----------------------------\n ", name);
+
+				System.out.println("\nParsing method:\t\t" + name);
 				
 				parseLineLengths(methodBody);
 				braces.add(bp.parseMethodBraces(methodBody));	

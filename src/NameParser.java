@@ -18,26 +18,26 @@ public class NameParser {
 		String field;
 		String[] words;
 		ArrayList<String> wordList;
-		int indx = 0;
 		boolean constant;
 		int result;
-		
-		for (int i = 0; i < fields.size(); i++) {
+
+		for(int i = 0; i < fields.size(); i++) {
+			int indx = 0;
 			field = fields.get(i).toString();
 			words = field.split("\\s+");
 			wordList = new ArrayList<>(Arrays.asList(words));
 			constant = wordList.contains("final");
-			
-			// go through each word in the field declaration and find the index of the primitßive type
-			for (int j = 0; j < wordList.size(); j++) {
-				if (primitives.contains(wordList.get(i))) {
+
+			// go through each word in the field declaration and find the index of the primitive type
+			for(int j = 0; j < wordList.size(); j++) {
+				if(primitives.contains(wordList.get(j))) {
 					indx = j;
 					break;
 				}
 			}
-			
+
 			String var = wordList.get(indx + 1);
-			if (constant) {
+			if(constant) {
 				result = parseName(var, true, false, false);
 				if (result == 0) {
 					nr.constants.add(false);
@@ -48,41 +48,29 @@ public class NameParser {
 				result = parseName(var, false, false, false);
 				nr.fields.add(result);
 			}
-			
 		}
-		
 	}
 	
 	public void parseMethodNames(List<MethodDeclaration> methods, NameResults nr) {
-		String methodDec;
-		String methodNameWithParens;
-		String methodName;
-		int indx;
-		int result;
-		
-		for (int i = 0; i < methods.size(); i++) {
-			methodDec = methods.get(i).getDeclarationAsString(false, false, false);
-			methodNameWithParens = methodDec.split("\\s+")[1];
-			indx = methodNameWithParens.indexOf('(');
-			methodName = methodNameWithParens.substring(0, indx);
-			result = parseName(methodName, false, false, false);
-			nr.methods.add(result);
+		for(int i = 0; i < methods.size(); i++) {
+			String fullMethodDec = methods.get(i).getDeclarationAsString(false, false, false);
+			String methodNameWithReturnType = fullMethodDec.substring(0, fullMethodDec.indexOf('('));
+			String methodName = methodNameWithReturnType.split("\\s+")[1];
+			nr.methods.add(parseName(methodName, false, false, false));
 		}
-	
 	}
 	
 	public void parseVariables(String[] methodLines, NameResults nr) {
 		String name = null;	
-		for (int i = 0; i < methodLines.length; i++) {
-			if (!methodLines[i].trim().equals("")) {
+		for(int i = 0; i < methodLines.length; i++) {
+			if(!methodLines[i].trim().equals("")) {
 				name = methodLines[i].split("\\s+")[0];
 			}
 			
-			if ((name != null) && (primitives.contains(name))) {
+			if((name != null) && (primitives.contains(name))) {
 				String var = methodLines[i].split("\\s+")[1];
 				int result = parseName(var, false, false, false);
 				nr.variables.add(result);
-				
 			}
 		}
 		
@@ -112,50 +100,47 @@ public class NameParser {
 		
 		firstLetterUpperCase = (Character.isAlphabetic(ch) && Character.isUpperCase(ch));
 		
-		for (int i = 0; i < var.length(); i++) {
+		for(int i = 0; i < var.length(); i++) {
 			ch = var.charAt(i);
 			
 			// checking to see whether characters other than '_' and '.' are not alphabetic
-			if (!Character.isAlphabetic(ch) || (ch != '_') || (ch != '.')) {
+			if(!Character.isAlphabetic(ch) || (ch != '_') || (ch != '.')) {
 				isAlphaBetic = false;
 			}
 			
 			// checking to see whether characters other than '.' are letters or digits
-			if (!(Character.isLetterOrDigit(ch) && (ch != '.'))) {
+			if(!(Character.isLetterOrDigit(ch) && (ch != '.'))) {
 				isAlphaNumeric = false;
 				if (ch == '_') {
 					underscores = true;
 				}
 			}
 			
-			if (Character.isAlphabetic(ch)) {
+			if(Character.isAlphabetic(ch)) {
 				allUpperCase &= Character.isUpperCase(ch);
 				allLowerCase &= Character.isLowerCase(ch);
 			}
 		}
 		
-		if (isPackage) {
-			if (allLowerCase && isAlphaBetic) {
+		if(isPackage) {
+			if(allLowerCase && isAlphaBetic) {
 				return 2;
 			}
-		} else if (constant) {
-			if (underscores && allUpperCase && isAlphaBetic) {
+		} else if(constant) {
+			if(underscores && allUpperCase && isAlphaBetic) {
 				return 2;
 			}
-		} else if (isClass) {
+		} else if(isClass) {
 			if (firstLetterUpperCase && isAlphaNumeric) {
 				return 2;
 			}
 		} else { // it's a local variable or class variable or method name
-			if (underscores && isAlphaNumeric && allLowerCase) {
+			if(underscores && isAlphaNumeric && allLowerCase) {
 				return 1;
-			} else if (isAlphaNumeric && !firstLetterUpperCase) {
+			} else if(isAlphaNumeric && !firstLetterUpperCase) {
 				return 2;
 			}
 		}
-		
 		return 0;
-		
 	}
-	
 }

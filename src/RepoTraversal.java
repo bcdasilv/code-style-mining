@@ -17,6 +17,26 @@ public class RepoTraversal {
         }
     }
 
+    private void decodeAndParseFile(String content) {
+        try {
+            FileParser fp = new FileParser();
+            byte[] valueDecoded = Base64.decodeBase64(content);
+            storeFileLocally(new String(valueDecoded));
+            fp.parseFile();
+        } catch(Exception e) {
+            e.printStackTrace();
+
+            /**
+             * Delete this
+             * This is so we crash if there is an exception so we can debug quicker
+             */
+            System.exit(1);
+            /**
+             *
+             */
+        }
+    }
+
     public void storeFileLocally(String content) {
         FileOutputStream fos = null;
         File file;
@@ -43,35 +63,66 @@ public class RepoTraversal {
         }
     }
 
-    private void decodeAndParseFile(String content) {
-        try {
-            FileParser fp = new FileParser();
-            byte[] valueDecoded = Base64.decodeBase64(content);
-            storeFileLocally(new String(valueDecoded));
-            fp.parseFile();
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     private void traverseRepoForFileContent(String repoURL) {
+        /**
+         * delete
+         */
+        int count = 0;
+        /**
+         * End delete
+         */
+
         try {
             ArrayList<String> urls = traverseTreeForFileURLs(repoURL);
             for(String url : urls) {
+                /**
+                 * Delete
+                 *
+                 */
+                System.out.println("<printing from repo traversal>...File number: " + count);
+                /**
+                 * End delete
+                 */
+
+                /**
+                 * This is the regular file looper
+                 */
                 JSONObject content = makeGetRequest(url);
                 String contentStr = content.getString("content");
                 contentStr = contentStr.replaceAll("\n", "");
                 decodeAndParseFile(contentStr);
+
+                /**
+                 * delete
+                 */
+                count++;
+                /**
+                 * End delete
+                 */
             }
+
+//            /**
+//             * Delete all this
+//             * This snippet is so we can choose which java file to test
+//             */
+//            JSONObject content = makeGetRequest(urls.get(641));
+//            String contentStr = content.getString("content");
+//            contentStr = contentStr.replaceAll("\n", "");
+//            decodeAndParseFile(contentStr);
+//            System.exit(0);
+//            /**
+//             *
+//             */
+
         } catch(Exception e) {
             e.printStackTrace();
         }
     }
 
     private ArrayList<String> traverseTreeForFileURLs(String repoURL) {
-        JSONObject treeObj = getTreeObjectFromRepo(repoURL);
         ArrayList<String> urls = new ArrayList<>();
         try {
+            JSONObject treeObj = getTreeObjectFromRepo(repoURL);
             String treeURL = treeObj.getString("url");
             JSONObject tree = makeGetRequest(treeURL + "?recursive=1");
             JSONArray array = getJSONArrayByKey(tree, "tree");
@@ -92,7 +143,7 @@ public class RepoTraversal {
         return urls;
     }
 
-    private JSONObject getTreeObjectFromRepo(String url) {
+    private JSONObject getTreeObjectFromRepo(String url) throws CustomException {
         try {
             JSONObject response = makeGetRequest(url);
             String[] keys = new String[] { "commit", "commit", "tree" };
@@ -100,25 +151,25 @@ public class RepoTraversal {
         } catch(Exception e) {
             e.printStackTrace();
         }
-        throw new NullPointerException();
+        throw new CustomException("Cannot find JSON object from these keys.");
     }
 
-    private JSONArray getJSONArrayByKey(JSONObject source, String key) {
+    private JSONArray getJSONArrayByKey(JSONObject source, String key) throws CustomException {
         try {
             return source.getJSONArray(key);
         } catch(Exception e) {
             e.printStackTrace();
         }
-        throw new NullPointerException();
+        throw new CustomException("Cannot find JSON array by this key.");
     }
 
-    private JSONObject getJSONObjectByKey(JSONObject source, String key) {
+    private JSONObject getJSONObjectByKey(JSONObject source, String key) throws CustomException {
         try {
             return source.getJSONObject(key);
         } catch(Exception e) {
             e.printStackTrace();
         }
-        throw new NullPointerException();
+        throw new CustomException("Cannot find JSON object by this key.");
     }
 
     private JSONObject recurseForJSONObject(JSONObject source, String[] keys) {
@@ -133,7 +184,7 @@ public class RepoTraversal {
         return object;
     }
 
-    private JSONObject makeGetRequest(String urlString) {
+    private JSONObject makeGetRequest(String urlString) throws CustomException {
         try {
             String authToken = config.getAuthToken();
             URL url = new URL(urlString);
@@ -156,7 +207,19 @@ public class RepoTraversal {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        throw new NullPointerException();
+        throw new CustomException("Could not make get request.");
+    }
+
+    private String getDefaultBranch(String url) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("/branches/");
+        try {
+            JSONObject response = makeGetRequest(url);
+            sb.append(response.getString("default_branch"));
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+        return sb.toString();
     }
 
     private ArrayList<String> getRepoURLsFromConfig() {
@@ -169,7 +232,7 @@ public class RepoTraversal {
                 StringBuilder sb = new StringBuilder();
                 sb.append("https://api.github.com/repos/");
                 sb.append(line);
-                sb.append("/branches/master");
+                sb.append(getDefaultBranch(sb.toString()));
                 urls.add(sb.toString());
             }
             br.close();
