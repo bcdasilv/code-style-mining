@@ -98,6 +98,7 @@ def check_imports(counters, report):
 # Create the dictionary of analysis result values to be converted into JSONa
 def create_json_dict(counters, file_name):
     obj = {"total_file_errors": None}
+    # SyntaxError
     names = naming.naming_results(file_name)
     indents = json_check_errors(counters, INDENT_ERRORS)
     tabs = json_check_errors(counters, TABS_SPACES_ERRORS)
@@ -128,7 +129,7 @@ def collect_file_dict_results(file_name):
     quiet_checker.check_all()
     counters = breport.counters
     # TODO: if a runtime error is thrown (E901, E902), still analyze the rest?
-    js = create_json_dict(counters, file_name)
+    js = create_json_dict(counters, file_name) # SyntaxError
     naming.cleanup()
     return js
 

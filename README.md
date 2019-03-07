@@ -1,4 +1,5 @@
 # code-style-mining
+[![Build Status](https://travis-ci.org/kramsey458/code-style-mining.svg?branch=python_analysis)](https://travis-ci.org/kramsey458/code-style-mining) .  
 This project aims at mining public software repositories on GitHub in order to map developers' coding style. To the best of our knowledge, ours is the first attempt to mine a huge dataset of public software projects and provide summarized quantitative data to understand how developers program in terms of coding style.
 
 Currently this project examines repositories written in Java and Python. In the future, we hope to analyze additional languages. See our [wiki](https://github.com/bcdasilv/code-style-mining/wiki) for more information.
@@ -15,4 +16,13 @@ The following dependencies are necessary to run the python project.
 * [dnspython](http://www.dnspython.org/)
 * [requests](http://docs.python-requests.org)
 * [pymongo](https://api.mongodb.com/python/current/)
-* [pycodestyle](https://pypi.org/project/pycodestyle/)
+* [pycodestyle](https://pypi.org/project/pycodestyle/)   
+* [pytest](https://docs.pytest.org/en/latest/)
+
+These dependencies can be installed to a Python pipenv.
+Install these dependencies from the Pipfile with the command   
+```pipenv install```   
+Start the pipenv with   
+```pipenv shell```   
+Start the application   
+```python3 main.py <GitHub_OAuth_token> [-file <file_name>] [-mongodb <username> <password> <cluster> <database> <collection>]```
