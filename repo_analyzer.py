@@ -84,6 +84,7 @@ MDB_ID = "_id"
 
 TOKEN = None
 
+
 def reset_summary():
     global C_DEF_SUMMARY
     C_DEF_SUMMARY = {C_SUMMARY:
@@ -92,6 +93,7 @@ def reset_summary():
                           C_TOTAL_REPO: 0,
                           C_TOTAL_CAT: {NAMES: 0, INDENTS: 0, TABS: 0,
                                         LENGTH: 0, BLANKS: 0, IMPORTS: 0}}}
+    return C_DEF_SUMMARY
 
 
 # Set the GitHub OAuth TOKEN used for get requests
@@ -214,7 +216,8 @@ def process_file(blob, gh_path_partial):
 
 
 # Analyze all Python files found in the repository tree
-def check_recursive_tree_contents(contents, local_path_partial, repo, master_results=C_DEF_SUMMARY):
+def check_recursive_tree_contents(contents, local_path_partial, repo, master_results=reset_summary()):
+    master_results = reset_summary()
     file_count = 0
     analyzed_count = 0
     for c in contents:
