@@ -216,7 +216,7 @@ def process_file(blob, gh_path_partial):
 
 
 # Analyze all Python files found in the repository tree
-def check_recursive_tree_contents(contents, local_path_partial, repo, master_results=reset_summary()):
+def check_recursive_tree_contents(contents, local_path_partial, repo):
     master_results = reset_summary()
     file_count = 0
     analyzed_count = 0
