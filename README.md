@@ -16,9 +16,13 @@ For the purposes of running the Java analysis code, one needs to supply the give
 
 authToken = "\<auth token\>"
 
-- The file path for the local storage of the file being parsed.
+- The file path for the local storage of the Java file being parsed.
 
-tempFilePath = "\<temp file path>\"
+tempJavaFilePath = "\<path>\"
+
+- The file path for the local storage of the JSONification of analysis.
+
+tempJSONFilePath = "\<path>\"
 
 - The :owner/:repo that is used in a GET through the GitHub API.
 
