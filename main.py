@@ -21,6 +21,7 @@ def print_err_msg(owner, repo, err_type, msg):
 def read_from_file(file_name, output_setting, mdb_name, mdb_password, mdb_cluster, mdb_database, mdb_collection):
     infile = open(file_name, 'r')
     lines = infile.readlines()
+    # lines is having multiple file names appending to it on case of execution failure
     for i in range(len(lines)):
         if lines[i].startswith("#") or lines[i].startswith(" ")\
                 or lines[i] == "" or lines[i] == "\n":
