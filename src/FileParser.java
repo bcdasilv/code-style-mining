@@ -33,12 +33,14 @@ public class FileParser {
 	protected NameResults nr = new NameResults();
 
 	private static final Config config = Config.getInstance();
-	private static final String tempFilePath = config.getTempFilePath();
+	private static final String tempFilePath = config.getTempJavaFilePath();
 
 	private JSONify jsonify;
+	private JSONifySummary summary;
 
-	public FileParser() {
+	public FileParser(JSONifySummary summary) {
 		jsonify = new JSONify(this);
+		this.summary = summary;
 	}
 	
 	public void parseFile() {
@@ -85,12 +87,12 @@ public class FileParser {
 				parseLineLengths(methodBody);
 				braces.add(bp.parseMethodBraces(methodBody));	
 				methodWPs.add(wp.parseWhiteSpace(methodBody));
-				
 				np.parseVariables(methodBody, nr);
 			}
 			classWhiteSpace.add(classWPSoFar);
 		}
-		jsonify.JSONify();
+		// add each file to the summary class
+		summary.addObject(jsonify.JSONify());
 	}
 	
 	// @TODO: change this to lines of file

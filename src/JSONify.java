@@ -1,21 +1,26 @@
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class JSONify {
     private FileParser fp;
+    private String tempJSONFilePath = Config.getInstance().getTempJSONFilePath();
 
     public JSONify(FileParser fp) {
         this.fp = fp;
     }
 
-    public void JSONify() {
-        JSONObject file = new JSONObject();
+    public JSONObject JSONify() {
+        JSONObject obj = new JSONObject();
         JSONObject classJSON = new JSONObject();
         try {
             // file-specific attributes
-            file.put("import", fp.wildCard);
-            file.put("package", fp.packageDecName);
+            obj.put("import", fp.wildCard);
+            obj.put("package", fp.packageDecName);
 
             // class attributes
             JSONifyClassNames(classJSON);
@@ -24,10 +29,27 @@ public class JSONify {
             JSONifyFields(classJSON, false, false);
             JSONifyMethods(classJSON);
 
-            // put class into file
-            file.put("class", classJSON);
+            // put class into json object
+            obj.put("class", classJSON);
 
-            System.out.println(file.toString(4));
+            // store the json object locally
+            // storeJSONLocally(obj);
+            /**
+             * Delete this print....
+             */
+            // System.out.println(file.toString(4));
+            /**
+             * End delete
+             */
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+        return obj;
+    }
+
+    public void storeJSONLocally(JSONObject obj) {
+        try (FileWriter fw = new FileWriter(tempJSONFilePath)){
+            fw.write(obj.toString());
         } catch(Exception e) {
             e.printStackTrace();
         }
@@ -38,8 +60,8 @@ public class JSONify {
         int other = 0;
         JSONObject classNames = new JSONObject();
 
-        for (boolean classNameStyle : fp.nr.classes) {
-            if (classNameStyle) {
+        for(boolean classNameStyle : fp.nr.classes) {
+            if(classNameStyle) {
                 google++;
             } else {
                 other++;
@@ -74,8 +96,8 @@ public class JSONify {
         JSONObject constants = new JSONObject();
         JSONObject names = new JSONObject();
 
-        for (boolean constant : fp.nr.constants) {
-            if (constant) {
+        for(boolean constant : fp.nr.constants) {
+            if(constant) {
                 google++;
             } else {
                 other++;

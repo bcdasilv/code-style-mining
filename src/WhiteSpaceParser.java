@@ -47,16 +47,16 @@ public class WhiteSpaceParser {
 		String line;
 		int indent;
 
-		for (i = 0; i < methodLines.length; i++) {
+		for(i = 0; i < methodLines.length; i++) {
 			cnt = 0;
 			line = methodLines[i];
 
-			if (!line.trim().equals("")) {
+			if(!line.trim().equals("")) {
 				numLineSpaces = 0;
-				while (Character.isWhitespace(c = line.charAt(cnt))) {
-					if (c == ' ') {
+				while(Character.isWhitespace(c = line.charAt(cnt))) {
+					if(c == ' ') {
 						numLineSpaces++;
-					} else if (c == '\t') {
+					} else if(c == '\t') {
 						numTabs++;
 					}
 					cnt++;
@@ -64,9 +64,9 @@ public class WhiteSpaceParser {
 
 				spaces.add(numLineSpaces);
 				
-				if ((line.length() >= 2) && (line.charAt(line.length() - 1) == '{')) {
+				if((line.length() >= 2) && (line.charAt(line.length() - 1) == '{')) {
 					indent = updateSpaceCount(methodLines, i);
-					if (indent > 0) {
+					if(indent > 0) {
 						indents.add(indent);					
 						maxIndent = Math.max(indent, maxIndent);
 						minIndent = Math.min(indent, minIndent);
@@ -82,7 +82,6 @@ public class WhiteSpaceParser {
 		mwp.numTabOccurrences = numTabs;
 		mwp.averageIndent = computeAverageIndent(indents);
 		mwp.numSpaceOccurrences = computeSpaceOccurrences(spaces, mwp.averageIndent);
-
 	}
 
 	// -1 denotes that only tabs were used. a non-negative number should be returned otherwise.

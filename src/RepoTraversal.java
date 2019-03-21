@@ -8,7 +8,16 @@ import org.apache.commons.codec.binary.Base64;
 
 public class RepoTraversal {
     private static final Config config = Config.getInstance();
-    private static final String tempFilePath = config.getTempFilePath();
+    private static final String tempFilePath = config.getTempJavaFilePath();
+
+    private long numFiles;
+    private long numJavaFiles;
+
+    private JSONifySummary summary;
+
+    public RepoTraversal(JSONifySummary summary) {
+        this.summary = summary;
+    }
 
     public void findJavaFilesToParse() {
         ArrayList<String> repoURLs = getRepoURLsFromConfig();
@@ -19,21 +28,14 @@ public class RepoTraversal {
 
     private void decodeAndParseFile(String content) {
         try {
-            FileParser fp = new FileParser();
+            FileParser fp = new FileParser(summary);
             byte[] valueDecoded = Base64.decodeBase64(content);
             storeFileLocally(new String(valueDecoded));
+
+            // send each file off to the FileParser class
             fp.parseFile();
         } catch(Exception e) {
             e.printStackTrace();
-
-            /**
-             * Delete this
-             * This is so we crash if there is an exception so we can debug quicker
-             */
-            System.exit(1);
-            /**
-             *
-             */
         }
     }
 
@@ -75,45 +77,11 @@ public class RepoTraversal {
         try {
             ArrayList<String> urls = traverseTreeForFileURLs(repoURL);
             for(String url : urls) {
-                /**
-                 * Delete
-                 *
-                 */
-                System.out.println("<printing from repo traversal>...File number: " + count);
-                /**
-                 * End delete
-                 */
-
-                /**
-                 * This is the regular file looper
-                 */
                 JSONObject content = makeGetRequest(url);
                 String contentStr = content.getString("content");
                 contentStr = contentStr.replaceAll("\n", "");
                 decodeAndParseFile(contentStr);
-
-                /**
-                 * delete
-                 */
-                count++;
-                /**
-                 * End delete
-                 */
             }
-
-//            /**
-//             * Delete all this
-//             * This snippet is so we can choose which java file to test
-//             */
-//            JSONObject content = makeGetRequest(urls.get(0));
-//            String contentStr = content.getString("content");
-//            contentStr = contentStr.replaceAll("\n", "");
-//            decodeAndParseFile(contentStr);
-//            System.exit(0);
-//            /**
-//             *
-//             */
-
         } catch(Exception e) {
             e.printStackTrace();
         }
@@ -128,12 +96,14 @@ public class RepoTraversal {
             JSONArray array = getJSONArrayByKey(tree, "tree");
 
             for(int i = 0; i < array.length(); i++) {
+                numFiles++;
                 JSONObject obj = array.getJSONObject(i);
                 String path = obj.getString("path");
                 String type = obj.getString("type");
                 String contentURL = obj.getString("url");
 
                 if(path.contains(".java") && (type.contains("blob"))) {
+                    numJavaFiles++;
                     urls.add(contentURL);
                 }
             }
@@ -240,5 +210,13 @@ public class RepoTraversal {
             e.printStackTrace();
         }
         return urls;
+    }
+
+    public long getNumFiles() {
+        return numFiles;
+    }
+
+    public long getNumJavaFiles() {
+        return numJavaFiles;
     }
 }
