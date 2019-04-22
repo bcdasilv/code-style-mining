@@ -1,0 +1,5 @@
+Grocode87/linear-regression-global-warming
+irontarkus95/MET-Oracle-lstm-time-series-weather-prediction
+RebeccaShannon94/GlobalWarmingModels
+jkgiesler/global-warming-sentiment
+sayandev/Global-Warming-Plots-with-Python-nvd3

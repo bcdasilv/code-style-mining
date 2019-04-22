@@ -1,0 +1,17 @@
+adafruit/Pi_Physical_Dashboard
+ebroecker/a2lupdater
+ezod/autogab
+PhilippMundhenk/IVNS
+krisneuharth/rmonitor
+k2maxis/vin
+ChandanSuri/Python-Automation
+rozkalibrowany/komputer_pokladowy
+sandeshachari/DataProcessing
+SpartanByte/Python_CalculationsExample
+gardnerpomper/IntroPythonCOX
+rmvanwyk/automotive_costs
+mengsanshui/PeterPython
+nint8835/PyHickmanSales
+klatimer/obd-hud
+manuganji/ADF-XML-format-example
+grishmavarma/ccn

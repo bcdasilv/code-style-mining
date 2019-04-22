@@ -1,0 +1,8 @@
+durden/pyhou_oil
+dannykingx/Wyoming-Oil-and-Gas-Commission-Data-Strip-and-Visualization
+scogle/SpillReport
+bcnuttall/OGTools
+nomalet/DCA_Bokeh
+JeanPJ/EchoStateProjects
+lgonzaga/lgonzaga.github.io
+osbi86/READ-ME

@@ -1,0 +1,15 @@
+nkoech/Targeting_Tools_10_1
+mpastell/pyageng
+dnrwaterqualitymodeling/EVAAL
+arodri77/DSGE_Developing_Economies
+netfirms/ThaiAgroPriceScraper
+gouthamiexcelr/Internet-of-things-training-in-Malaysia
+mnltake/gpsnavi
+Leonhalt3141/python_training
+farmlab/agronopy
+pshirlyn/agriscraper
+TheBazarGuy/agr_pasteur
+SimmonsRitchie/pa-restaurant-inspection-scraper
+LabDig/DAGAPy
+ParinSanghavi/Website---Vacant-to-Vital-Inc
+shubham99999/Using-AI-to-Detect-Diseases-in-Tomato-Plant

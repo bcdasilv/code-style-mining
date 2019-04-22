@@ -1,0 +1,8 @@
+CUD2V/DrugFixer
+EmlynC/pydata2014-python-pharmaceuticals
+benjkedl/matplotlibhw
+brbales/Pymaceuticals
+BLKOPL/PyMaceuticals
+erica-lei/pymaceuticals
+MinakoUsui/Canadian-life-expectancy-and-pharma-spend
+rogerjdeangelis/utl_clinical_report

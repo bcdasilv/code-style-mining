@@ -1,0 +1,10 @@
+thesis/groovehq
+tom-henderson/webhelpdesk
+brynkng/ChatBot
+Jrsnow8921/Snow_Help_Desk
+Webaholicson/helpdesk
+onewaymyway/windowsHelper
+Kodyc1/Esports-arena-scripts
+AZelinsky96/HelpDeskApplication
+rowelldionicio/local-ping-test.py
+pyjamapants/Python-NLP-Chat-Bot

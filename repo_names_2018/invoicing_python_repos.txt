@@ -1,0 +1,9 @@
+Naeka/vosae-app
+akretion/factur-x
+Olamyy/pypayant
+allankenneth/hitchless-invoicing
+salesking/salesking_python_sdk
+bitartisan/py3-simple-invoicing
+jbpeters/Time-keeper
+maharnab/easy_invoice
+sanjeevan/nanoinvoice

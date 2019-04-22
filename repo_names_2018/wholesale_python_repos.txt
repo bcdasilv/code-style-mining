@@ -1,0 +1,8 @@
+gothm/FreePyBX
+acheraime/FreePyBX
+George3000/customer_segmentation
+jamesfowkes/auto-speed-test
+samirdeshpande/invoice
+aaron-iglesias/Creating-Customer-Segments
+jkMLnop/customer_segments
+indira-active/fulfillment-platform
