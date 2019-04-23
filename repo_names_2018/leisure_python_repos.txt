@@ -1,0 +1,10 @@
+SportTrax/RPi-GPS-Logger
+paxocap/Facebook-newsfeed-classifier
+naveentrtumkur/Python-Projects
+avaldebe/pynb
+power/py
+XTremeRox/Typing-PyBot
+madguy02/simple-python-projects-
+skanda99/TIC_TAC_TOE
+rogerjdeangelis/utl_proc_traj_example_trajectory_of_food_and_leisure_costs
+mjamespalmer/Comp-Ling-101-by-MJPalmer

@@ -1,0 +1,9 @@
+thesis/groovehq
+tom-henderson/webhelpdesk
+twitchbot-discord/support.twitchbot.io
+brynkng/ChatBot
+Jrsnow8921/Snow_Help_Desk
+onewaymyway/windowsHelper
+Kodyc1/Esports-arena-scripts
+rowelldionicio/local-ping-test.py
+pyjamapants/Python-NLP-Chat-Bot

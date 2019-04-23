@@ -1,0 +1,7 @@
+durden/pyhou_oil
+scogle/SpillReport
+bcnuttall/OGTools
+nomalet/DCA_Bokeh
+JeanPJ/EchoStateProjects
+lgonzaga/lgonzaga.github.io
+osbi86/READ-ME

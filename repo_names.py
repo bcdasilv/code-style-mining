@@ -9,7 +9,7 @@ import time
 
 #I'll leave this script with anonymous requests for the sake of simplicity
 #TODO: make authenticated requests. It'll increase the performance a little bit unless we have a list with hundreds of keywords
-#For now, I've been using a list of 91 kewwords
+#For now, I've been using a list of 100 kewwords
 
 f_keywords = open('repo_keywords.txt', 'r')
 lines = f_keywords.readlines()
@@ -21,8 +21,8 @@ for i in range(len(lines)):
 	url = 'https://api.github.com/search/repositories?q='+keyword+':python&sort=stars&order=desc'
 	if i != 0 and i % 10 == 0 :
 		print('	...waiting to clear GH API rate limit')
-		time.sleep(60)
-	print('Searching for pyhon repos. Keyword: '+keyword+'\n');
+		time.sleep(60) 
+	print('Searching for pyhon repos. Keyword: '+keyword+'\n')
 	response = requests.get(url)
 	loaded_json = json.loads(response.content)
 	fout = open('repo_names/'+keyword+"_python_repos.txt", 'a')
@@ -31,3 +31,5 @@ for i in range(len(lines)):
 	fout.close()
 	response.close()
 f_keywords.close()
+
+#https://api.github.com/search/repositories?q=language:python&sort=stars&order=desc
