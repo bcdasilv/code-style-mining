@@ -7,7 +7,6 @@ from datetime import datetime
 from itertools import chain
 
 import requests
-
 import file_analyzer
 
 BASE_URL = "https://api.github.com"
@@ -95,6 +94,12 @@ def reset_summary():
                                         LENGTH: 0, BLANKS: 0, IMPORTS: 0}}}
     return C_DEF_SUMMARY
 
+# work around function to bring summary to top level without major analysis refactoring
+def summary_top_level(repo_analysis):
+    summary = repo_analysis[C_REPO_ANALYSIS][C_SUMMARY]
+    repo_analysis["summary"] = summary
+    del repo_analysis[C_REPO_ANALYSIS][C_SUMMARY]
+    return repo_analysis
 
 # Set the GitHub OAuth TOKEN used for get requests
 def set_oauth_token(oauth):
@@ -222,9 +227,11 @@ def check_recursive_tree_contents(contents, local_path_partial, repo):
     analyzed_count = 0
     for c in contents:
         if c[GH_FILE_TYPE] == "blob":
+            # file count in summary
             file_count += 1
             # If it is a non-empty Python file, run the analysis
             if c[GH_FILE_NAME].endswith(FILE_EXTENSION) and c[GH_SIZE] != 0:
+                # analyzed count in summary
                 analyzed_count += 1
 
                 # Status update printed to console
@@ -268,4 +275,9 @@ def analyze_repo(owner, repo):
     analysis_results = check_recursive_tree_contents(tree_resp.json()[GH_TREE],
                                                      gh_path_partial, repo)
     repo_json_dict[C_REPO_ANALYSIS] = analysis_results
+    # workaround fix for json summary @ top level
+    #summary = repo_json_dict[C_REPO_ANALYSIS][C_SUMMARY]
+    #repo_json_dict["summary"] = summary
+    #del repo_json_dict[C_REPO_ANALYSIS][C_SUMMARY]
+    repo_json_dict = summary_top_level(repo_json_dict)
     return repo_json_dict
