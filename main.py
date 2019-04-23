@@ -55,7 +55,6 @@ def write_to_mongodb(mongodb_user, mongodb_password, cluster, db_name, coll_name
     db = client[db_name]
     coll = db[coll_name]
     mongo_id = coll.insert_one(data)
-    #mongo_id = db.collection1.insert_one(data)
 
     return mongo_id
 
