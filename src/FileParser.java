@@ -12,6 +12,7 @@ import com.github.javaparser.ast.PackageDeclaration;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
+import config.Config;
 
 public class FileParser {
 	// Parser objects -- for calling methods in other classes

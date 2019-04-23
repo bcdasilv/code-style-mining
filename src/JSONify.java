@@ -1,9 +1,7 @@
+import config.Config;
 import org.json.JSONObject;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 
 public class JSONify {
@@ -33,7 +31,7 @@ public class JSONify {
             obj.put("class", classJSON);
 
             // store the json object locally
-            // storeJSONLocally(obj);
+            storeJSONLocally(obj);
             /**
              * Delete this print....
              */
