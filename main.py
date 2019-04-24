@@ -168,6 +168,8 @@ def main(argv):
             try:
                 if check_duplicate_repo(owner, repo):
                     results = analyze_repo(owner, repo)
+                else:
+                    print("Skipping repo "+owner+"/"+repo+". Already in database.")
             except SyntaxError as e:
                 print_err_msg(owner, repo, "SyntaxError", e.msg)
             except UnicodeDecodeError as u:
