@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import org.apache.commons.codec.binary.Base64;
+import util.UrlFilepathPair;
 
 public class RepoTraversal {
     private static final Config config = Config.getInstance();
@@ -15,10 +16,7 @@ public class RepoTraversal {
     private long numFiles;
     private long numJavaFiles;
 
-    private JSONifySummary summary;
-
-    public RepoTraversal(JSONifySummary summary) {
-        this.summary = summary;
+    public RepoTraversal() {
     }
 
     public void findJavaFilesToParse() {
@@ -28,14 +26,14 @@ public class RepoTraversal {
         }
     }
 
-    private void decodeAndParseFile(String content) {
+    private void decodeAndParseFile(String content, String repoURL, String filePath, JSONifySummary summary) {
         try {
-            FileParser fp = new FileParser(summary);
+            FileParser fp = new FileParser();
             byte[] valueDecoded = Base64.decodeBase64(content);
             storeFileLocally(new String(valueDecoded));
 
             // send each file off to the FileParser class
-            fp.parseFile();
+            fp.parseFile(repoURL, filePath, summary);
         } catch(Exception e) {
             e.printStackTrace();
         }
@@ -77,20 +75,24 @@ public class RepoTraversal {
          */
 
         try {
-            ArrayList<String> urls = traverseTreeForFileURLs(repoURL);
-            for(String url : urls) {
-                JSONObject content = makeGetRequest(url);
+            ArrayList<UrlFilepathPair> urls = traverseTreeForFileURLs(repoURL);
+            JSONifySummary repoSummary = new JSONifySummary();
+            //UrlFilepathPair contains the blob url and the file path of the blob
+            for(UrlFilepathPair url : urls) {
+                JSONObject content = makeGetRequest(url.getRepoBlobUrl());
                 String contentStr = content.getString("content");
                 contentStr = contentStr.replaceAll("\n", "");
-                decodeAndParseFile(contentStr);
+                decodeAndParseFile(contentStr, repoURL, url.getFilePath(), repoSummary);
             }
+            System.out.println(repoSummary);
         } catch(Exception e) {
             e.printStackTrace();
         }
+        //return summary
     }
 
-    private ArrayList<String> traverseTreeForFileURLs(String repoURL) {
-        ArrayList<String> urls = new ArrayList<>();
+    private ArrayList<UrlFilepathPair> traverseTreeForFileURLs(String repoURL) {
+        ArrayList<UrlFilepathPair> urls = new ArrayList<>();
         try {
             JSONObject treeObj = getTreeObjectFromRepo(repoURL);
             String treeURL = treeObj.getString("url");
@@ -106,7 +108,7 @@ public class RepoTraversal {
 
                 if(path.contains(".java") && (type.contains("blob"))) {
                     numJavaFiles++;
-                    urls.add(contentURL);
+                    urls.add(new UrlFilepathPair(contentURL, path));
                 }
             }
         } catch(Exception e) {

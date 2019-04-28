@@ -12,7 +12,9 @@ public class JSONify {
         this.fp = fp;
     }
 
-    public JSONObject JSONify() {
+    public JSONObject JSONify(String repoURL, String filePath) {
+        String repoURLowner = repoURL.split("/repos/")[1];
+
         JSONObject obj = new JSONObject();
         JSONObject classJSON = new JSONObject();
         try {
@@ -21,6 +23,8 @@ public class JSONify {
             obj.put("package", fp.packageDecName);
 
             // class attributes
+            obj.put("repoURL", repoURLowner);
+            obj.put("filename", filePath);
             JSONifyClassNames(classJSON);
             JSONifyBlankLines(classJSON);
             JSONifyConstants(classJSON);
@@ -57,7 +61,6 @@ public class JSONify {
         int google = 0;
         int other = 0;
         JSONObject classNames = new JSONObject();
-
         for(boolean classNameStyle : fp.nr.classes) {
             if(classNameStyle) {
                 google++;

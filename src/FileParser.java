@@ -13,13 +13,14 @@ import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import config.Config;
+import org.json.JSONObject;
 
 public class FileParser {
 	// Parser objects -- for calling methods in other classes
-	private static ParsingHelper ph = new ParsingHelper();
-	private static BraceParser bp = new BraceParser();
-	private static NameParser np = new NameParser();
-	private static WhiteSpaceParser wp = new WhiteSpaceParser();
+	private ParsingHelper ph = new ParsingHelper();
+	private BraceParser bp = new BraceParser();
+	private NameParser np = new NameParser();
+	private WhiteSpaceParser wp = new WhiteSpaceParser();
 
 	// result objects. If it is a collection, it is for each method, and if it is a boolean, then it is an element pertaining to the file.
 	// the one exception is the NameResults object -- it holds name result information for all the classes, members inside classes, and local variables inside methods.
@@ -37,14 +38,15 @@ public class FileParser {
 	private static final String tempFilePath = config.getTempJavaFilePath();
 
 	private JSONify jsonify;
-	private JSONifySummary summary;
 
-	public FileParser(JSONifySummary summary) {
+	public String repoURL;
+
+	public FileParser() {
 		jsonify = new JSONify(this);
-		this.summary = summary;
 	}
 	
-	public void parseFile() {
+	public void parseFile(String repoURL, String filePath, JSONifySummary summary) {
+		this.repoURL = repoURL;
 		FileInputStream in = null;
 		String[] linesOfFile = null;
 		try {
@@ -54,11 +56,9 @@ public class FileParser {
 			e.printStackTrace();
 		}
 		CompilationUnit cu = JavaParser.parse(in);
-
 		// look for asterisks in import statements and parse package declaration
 		wildCardPresent(cu);
 		parsePkgDec(cu);
-		
 		List<ClassOrInterfaceDeclaration> classes = cu.findAll(ClassOrInterfaceDeclaration.class);
 		for(ClassOrInterfaceDeclaration item: classes) {
 			// parse class name
@@ -93,7 +93,9 @@ public class FileParser {
 			classWhiteSpace.add(classWPSoFar);
 		}
 		// add each file to the summary class
-		summary.addObject(jsonify.JSONify());
+		//returns JSONObject with details for files
+		JSONObject results = jsonify.JSONify(repoURL, filePath);
+		summary.addObject(results);
 	}
 	
 	// @TODO: change this to lines of file
