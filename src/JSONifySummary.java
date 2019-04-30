@@ -51,6 +51,7 @@ public class JSONifySummary {
 
     public void addObject(JSONObject o){
             fileJSONObjects.add(o);
+            totalFiles++;
             addToFinalSummary(o);
     }
 
@@ -100,7 +101,6 @@ public class JSONifySummary {
     }
 
     public void writeResults(){
-        totalFiles = fileJSONObjects.size();
         try {
             finalSummary.put("methodsVariableOther", methodsVariableOther);
             finalSummary.put("methodsVariableLowerSnake", methodsVariableLowerSnake);
@@ -110,9 +110,6 @@ public class JSONifySummary {
             finalSummary.put("methodsIndentsMinIndent", methodsIndentsMinIndent);
             finalSummary.put("methodsIndentsAvgIndent", methodsIndentsAvgIndent);
             finalSummary.put("methodsIndentsMaxIndent", methodsIndentsMaxIndent);
-
-
-
         } catch (JSONException e) {
             e.printStackTrace();
         }
