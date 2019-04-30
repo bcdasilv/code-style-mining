@@ -73,7 +73,6 @@ public class NameParser {
 				nr.variables.add(result);
 			}
 		}
-		
 	}
 	
 	public void parseClassName(String className, NameResults nr) {

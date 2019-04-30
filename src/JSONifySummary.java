@@ -11,54 +11,97 @@ import java.util.ArrayList;
  * It'll iterate through this file and create a summary JSON object.
  */
 public class JSONifySummary {
+
     ArrayList<JSONObject> fileJSONObjects = new ArrayList<>();
     public JSONObject finalSummary;
-    //Integer blankLines = new Integer(0);
-    Integer methodsVariableOther = new Integer(0);
-    Integer methodsVariableLowerSnake = new Integer(0);
-    Integer methodsVariablesGoogle = new Integer(0);
-    Integer methodsIndentsTabs = new Integer(0);
-    Integer methodsIndentsSpaces = new Integer(0);
-    Integer methodsIndentsMinIndent = new Integer(0);
-    Integer methodsIndentsAvgIndent = new Integer(0);
-    Integer methodsIndentsMaxIndent = new Integer(0);
-    Integer methodsLineLength = new Integer(0);
-    Integer methodsNamingOther = new Integer(0);
-    Integer methodsNamingLowerSnake = new Integer(0);
-    Integer methodsNamingGoogle = new Integer(0);
-    Integer methodsCurlyBracesSingleOther = new Integer(0);
-    Integer methodsCurlyBracesSingleAllman = new Integer(0);
-    Integer methodsCurlyBracesSingleExKr = new Integer(0);
-    Integer methodsCurlyBracesSingleGoogle = new Integer(0);
-    Integer methodsCurlyBracesMultipleOther = new Integer(0);
-    Integer methodsCurlyBracesMultipleAllman = new Integer(0);
-    Integer methodsCurlyBracesMultipleExKr = new Integer(0);
-    Integer methodsCurlyBracesMultipleGoogle = new Integer(0);
-    Integer namingOther = new Integer(0);
-    Integer namingGoogle = new Integer(0);
-    Integer constantsNamingOther = new Integer(0);
-    Integer constantsNamingGoogle = new Integer(0);
-    Integer fieldsNamingOther = new Integer(0);
-    Integer fieldsNamingLowerSnake = new Integer(0);
-    Integer fieldsNamingGoogle = new Integer(0);
-    String repoUrl;
-    Integer linesOfCode = new Integer(0);
-    Integer totalFiles = new Integer(0);
+    private Integer methodsVariableOther;
+    private Integer methodsVariableLowerSnake;
+    private Integer methodsVariablesGoogle;
+    private Integer methodsIndentsTabs;
+    private Integer methodsIndentsSpaces;
+    private Integer methodsIndentsMinIndent;
+    private Integer methodsIndentsAvgIndent;
+    private Integer methodsIndentsMaxIndent;
+    private Integer methodsLineLength;
+    private Integer methodsNamingOther;
+    private Integer methodsNamingLowerSnake;
+    private Integer methodsNamingGoogle;
+    private Integer methodsCurlyBracesSingleOther;
+    private Integer methodsCurlyBracesSingleAllman;
+    private Integer methodsCurlyBracesSingleExKr;
+    private Integer methodsCurlyBracesSingleGoogle;
+    private Integer methodsCurlyBracesMultipleOther;
+    private Integer methodsCurlyBracesMultipleAllman;
+    private Integer methodsCurlyBracesMultipleExKr;
+    private Integer methodsCurlyBracesMultipleGoogle;
+    private Integer namingOther;
+    private Integer namingGoogle;
+    private Integer constantsNamingOther;
+    private Integer constantsNamingGoogle;
+    private Integer fieldsNamingOther;
+    private Integer fieldsNamingLowerSnake;
+    private Integer fieldsNamingGoogle;
+    private Integer blankLinesFailed;
+    private Integer blankLinesPassed;
+    private String repoUrl;
+    private Integer linesOfCodes;
+    private Integer totalFiles;
+    private Integer totalJavaFiles;
+    private Integer totalImports;
 
-    public JSONifySummary() {
+    public JSONifySummary(Long totalFiles, Long totalJavaFiles) {
         finalSummary = new JSONObject();
+        this.totalFiles = totalFiles.intValue();
+        this.totalJavaFiles = totalJavaFiles.intValue();
+        this.methodsVariableOther = 0;
+        this.methodsVariableLowerSnake = 0;
+        this.methodsVariablesGoogle = 0;
+        this.methodsIndentsTabs = 0;
+        this.methodsIndentsSpaces = 0;
+        this.methodsIndentsMinIndent = 0;
+        this.methodsIndentsAvgIndent = 0;
+        this.methodsIndentsMaxIndent = 0;
+        this.methodsLineLength = 0;
+        this.methodsNamingOther = 0;
+        this.methodsNamingLowerSnake = 0;
+        this.methodsNamingGoogle = 0;
+        this.methodsCurlyBracesSingleOther = 0;
+        this.methodsCurlyBracesSingleAllman = 0;
+        this.methodsCurlyBracesSingleExKr = 0;
+        this.methodsCurlyBracesSingleGoogle = 0;
+        this.methodsCurlyBracesMultipleOther = 0;
+        this.methodsCurlyBracesMultipleAllman = 0;
+        this.methodsCurlyBracesMultipleExKr = 0;
+        this.methodsCurlyBracesMultipleGoogle = 0;
+        this.namingOther = 0;
+        this.namingGoogle = 0;
+        this.constantsNamingOther = 0;
+        this.constantsNamingGoogle = 0;
+        this.fieldsNamingOther = 0;
+        this.fieldsNamingLowerSnake = 0;
+        this.fieldsNamingGoogle = 0;
+        this.blankLinesFailed = 0;
+        this.blankLinesPassed = 0;
+        this.repoUrl = "";
+        this.linesOfCodes = 0;
+        this.totalImports = 0;
     }
 
-    public void addObject(JSONObject o){
-            fileJSONObjects.add(o);
-            totalFiles++;
-            addToFinalSummary(o);
+    public void addObject(JSONObject o) {
+        fileJSONObjects.add(o);
+        addToFinalSummary(o);
+    }
+
+    public void addLinesOfCode(Integer lines) {
+        linesOfCodes += lines;
     }
 
     public void addToFinalSummary(JSONObject o) {
         try {
-            //#blank lines
-            //blankLines += getBlankLines(o);
+            //count imports
+            totalImports += addImports(o);
+            //add blank lines = failure if there is a blank line
+            getBlankLines(o);
             //add method variables naming results
             repoUrl = o.get("repoURL").toString();
             methodsVariableLowerSnake += getMethodsVariablesNamingLowerSnake(o);
@@ -100,7 +143,7 @@ public class JSONifySummary {
         }
     }
 
-    public void writeResults(){
+    public void writeResults() {
         try {
             finalSummary.put("methodsVariableOther", methodsVariableOther);
             finalSummary.put("methodsVariableLowerSnake", methodsVariableLowerSnake);
@@ -110,6 +153,7 @@ public class JSONifySummary {
             finalSummary.put("methodsIndentsMinIndent", methodsIndentsMinIndent);
             finalSummary.put("methodsIndentsAvgIndent", methodsIndentsAvgIndent);
             finalSummary.put("methodsIndentsMaxIndent", methodsIndentsMaxIndent);
+            //finalSummary.
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -147,6 +191,12 @@ public class JSONifySummary {
         */
     }
 
+    private Integer addImports(JSONObject o) throws JSONException {
+        String result = o.get("import").toString();
+        if (result.equals("true"))
+            return 1;
+        return 0;
+    }
 
     private JSONObject getClassJSONObject(JSONObject o) throws JSONException {
         return o.getJSONObject("class");
@@ -265,9 +315,12 @@ public class JSONifySummary {
         return getMethodsJSONObject(o).getJSONObject("indents");
     }
 
-    private Integer getBlankLines(JSONObject o) throws JSONException {
-        Integer s = Integer.parseInt(getClassJSONObject(o).get("blank_lines").toString());
-        return s;
+    private void getBlankLines(JSONObject o) throws JSONException {
+        String s = getClassJSONObject(o).get("blank_lines").toString();
+        if (s.equals("true"))
+            blankLinesFailed++;
+        else
+            blankLinesPassed++;
     }
 
     private JSONObject getNamingJSONObject(JSONObject o) throws JSONException {

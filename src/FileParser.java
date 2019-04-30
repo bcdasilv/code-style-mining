@@ -51,7 +51,7 @@ public class FileParser {
 		try {
 			in = new FileInputStream(new File(tempFilePath));
 			linesOfFile = ph.readLines(tempFilePath);
-			summary.linesOfCode += linesOfFile.length;
+			summary.addLinesOfCode(linesOfFile.length);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
