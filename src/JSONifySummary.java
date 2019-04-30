@@ -43,6 +43,7 @@ public class JSONifySummary {
     Integer fieldsNamingGoogle = new Integer(0);
     String repoUrl;
     Integer linesOfCode = new Integer(0);
+    Integer totalFiles = new Integer(0);
 
     public JSONifySummary() {
         finalSummary = new JSONObject();
@@ -99,7 +100,54 @@ public class JSONifySummary {
     }
 
     public void writeResults(){
+        totalFiles = fileJSONObjects.size();
+        try {
+            finalSummary.put("methodsVariableOther", methodsVariableOther);
+            finalSummary.put("methodsVariableLowerSnake", methodsVariableLowerSnake);
+            finalSummary.put("methodsVariablesGoogle", methodsVariablesGoogle);
+            finalSummary.put("methodsIndentsTabs", methodsIndentsTabs);
+            finalSummary.put("methodsIndentsSpaces", methodsIndentsSpaces);
+            finalSummary.put("methodsIndentsMinIndent", methodsIndentsMinIndent);
+            finalSummary.put("methodsIndentsAvgIndent", methodsIndentsAvgIndent);
+            finalSummary.put("methodsIndentsMaxIndent", methodsIndentsMaxIndent);
 
+
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        /*
+        Integer methodsVariableOther = new Integer(0);
+        Integer methodsVariableLowerSnake = new Integer(0);
+        Integer methodsVariablesGoogle = new Integer(0);
+        Integer methodsIndentsTabs = new Integer(0);
+        Integer methodsIndentsSpaces = new Integer(0);
+        Integer methodsIndentsMinIndent = new Integer(0);
+        Integer methodsIndentsAvgIndent = new Integer(0);
+        Integer methodsIndentsMaxIndent = new Integer(0);
+        Integer methodsLineLength = new Integer(0);
+        Integer methodsNamingOther = new Integer(0);
+        Integer methodsNamingLowerSnake = new Integer(0);
+        Integer methodsNamingGoogle = new Integer(0);
+        Integer methodsCurlyBracesSingleOther = new Integer(0);
+        Integer methodsCurlyBracesSingleAllman = new Integer(0);
+        Integer methodsCurlyBracesSingleExKr = new Integer(0);
+        Integer methodsCurlyBracesSingleGoogle = new Integer(0);
+        Integer methodsCurlyBracesMultipleOther = new Integer(0);
+        Integer methodsCurlyBracesMultipleAllman = new Integer(0);
+        Integer methodsCurlyBracesMultipleExKr = new Integer(0);
+        Integer methodsCurlyBracesMultipleGoogle = new Integer(0);
+        Integer namingOther = new Integer(0);
+        Integer namingGoogle = new Integer(0);
+        Integer constantsNamingOther = new Integer(0);
+        Integer constantsNamingGoogle = new Integer(0);
+        Integer fieldsNamingOther = new Integer(0);
+        Integer fieldsNamingLowerSnake = new Integer(0);
+        Integer fieldsNamingGoogle = new Integer(0);
+        String repoUrl;
+        Integer linesOfCode = new Integer(0);
+        Integer totalFiles = new Integer(0);
+        */
     }
 
 
