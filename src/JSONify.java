@@ -130,7 +130,6 @@ public class JSONify {
         } else {
             styles = fp.nr.fields;
         }
-
         for (int field : styles) {
             if (field == 2) {
                 google++;
@@ -205,6 +204,7 @@ public class JSONify {
         try {
             methodObject.put("line_length", fp.linesExceeding); // # of lines exceeding
             JSONifyFields(methodObject, true, false); // add local variables
+            System.out.println(methodObject);
             JSONifyBraces(methodObject);
 
             classObject.put("methods", methodObject);

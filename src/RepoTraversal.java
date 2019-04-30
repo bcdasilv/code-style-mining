@@ -76,6 +76,7 @@ public class RepoTraversal {
 
         try {
             ArrayList<UrlFilepathPair> urls = traverseTreeForFileURLs(repoURL);
+            //create a summary obj for this repo
             JSONifySummary repoSummary = new JSONifySummary();
             //UrlFilepathPair contains the blob url and the file path of the blob
             for(UrlFilepathPair url : urls) {
@@ -84,6 +85,8 @@ public class RepoTraversal {
                 contentStr = contentStr.replaceAll("\n", "");
                 decodeAndParseFile(contentStr, repoURL, url.getFilePath(), repoSummary);
             }
+            //repo summary is populated with results for each file.
+            //need to summarize the results into jsonobject
             System.out.println(repoSummary);
         } catch(Exception e) {
             e.printStackTrace();

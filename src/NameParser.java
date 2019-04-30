@@ -61,7 +61,7 @@ public class NameParser {
 	}
 	
 	public void parseVariables(String[] methodLines, NameResults nr) {
-		String name = null;	
+		String name = null;
 		for(int i = 0; i < methodLines.length; i++) {
 			if(!methodLines[i].trim().equals("")) {
 				name = methodLines[i].split("\\s+")[0];
