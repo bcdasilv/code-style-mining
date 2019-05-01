@@ -87,7 +87,8 @@ public class RepoTraversal {
             }
             //repo summary is populated with results for each file.
             //need to summarize the results into jsonobject
-            System.out.println(repoSummary);
+            JSONObject repoSummaryResults = repoSummary.writeResults();
+            System.out.println(repoSummaryResults);
         } catch(Exception e) {
             e.printStackTrace();
         }

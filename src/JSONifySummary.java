@@ -143,7 +143,7 @@ public class JSONifySummary {
         }
     }
 
-    public void writeResults() {
+    public JSONObject writeResults() {
         try {
             finalSummary.put("methodsVariableOther", methodsVariableOther);
             finalSummary.put("methodsVariableLowerSnake", methodsVariableLowerSnake);
@@ -153,42 +153,32 @@ public class JSONifySummary {
             finalSummary.put("methodsIndentsMinIndent", methodsIndentsMinIndent);
             finalSummary.put("methodsIndentsAvgIndent", methodsIndentsAvgIndent);
             finalSummary.put("methodsIndentsMaxIndent", methodsIndentsMaxIndent);
-            //finalSummary.
+            finalSummary.put("methodsLineLength", methodsLineLength);
+            finalSummary.put("methodsNamingOther", methodsNamingOther);
+            finalSummary.put("methodsNamingLowerSnake", methodsNamingLowerSnake);
+            finalSummary.put("methodsNamingGoogle", methodsNamingGoogle);
+            finalSummary.put("methodsCurlyBracesSingleOther", methodsCurlyBracesSingleOther);
+            finalSummary.put("methodsCurlyBracesSingleAllman", methodsCurlyBracesSingleAllman);
+            finalSummary.put("methodsCurlyBracesSingleExKr", methodsCurlyBracesSingleExKr);
+            finalSummary.put("methodsCurlyBracesSingleGoogle", methodsCurlyBracesSingleGoogle);
+            finalSummary.put("methodsCurlyBracesMultipleOther", methodsCurlyBracesMultipleOther);
+            finalSummary.put("methodsCurlyBracesMultipleAllman", methodsCurlyBracesMultipleAllman);
+            finalSummary.put("methodsCurlyBracesMultipleExKr", methodsCurlyBracesMultipleExKr);
+            finalSummary.put("methodsCurlyBracesMultipleGoogle", methodsCurlyBracesMultipleGoogle);
+            finalSummary.put("namingOther", namingOther);
+            finalSummary.put("namingGoogle", namingGoogle);
+            finalSummary.put("constantsNamingOther", constantsNamingOther);
+            finalSummary.put("constantsNamingGoogle", constantsNamingGoogle);
+            finalSummary.put("fieldsNamingOther", fieldsNamingOther);
+            finalSummary.put("fieldsNamingLowerSnake", fieldsNamingLowerSnake);
+            finalSummary.put("fieldsNamingGoogle", fieldsNamingGoogle);
+            finalSummary.put("repoUrl", repoUrl);
+            finalSummary.put("linesOfCodes", linesOfCodes);
+            finalSummary.put("totalFiles", totalFiles);
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        /*
-        Integer methodsVariableOther = new Integer(0);
-        Integer methodsVariableLowerSnake = new Integer(0);
-        Integer methodsVariablesGoogle = new Integer(0);
-        Integer methodsIndentsTabs = new Integer(0);
-        Integer methodsIndentsSpaces = new Integer(0);
-        Integer methodsIndentsMinIndent = new Integer(0);
-        Integer methodsIndentsAvgIndent = new Integer(0);
-        Integer methodsIndentsMaxIndent = new Integer(0);
-        Integer methodsLineLength = new Integer(0);
-        Integer methodsNamingOther = new Integer(0);
-        Integer methodsNamingLowerSnake = new Integer(0);
-        Integer methodsNamingGoogle = new Integer(0);
-        Integer methodsCurlyBracesSingleOther = new Integer(0);
-        Integer methodsCurlyBracesSingleAllman = new Integer(0);
-        Integer methodsCurlyBracesSingleExKr = new Integer(0);
-        Integer methodsCurlyBracesSingleGoogle = new Integer(0);
-        Integer methodsCurlyBracesMultipleOther = new Integer(0);
-        Integer methodsCurlyBracesMultipleAllman = new Integer(0);
-        Integer methodsCurlyBracesMultipleExKr = new Integer(0);
-        Integer methodsCurlyBracesMultipleGoogle = new Integer(0);
-        Integer namingOther = new Integer(0);
-        Integer namingGoogle = new Integer(0);
-        Integer constantsNamingOther = new Integer(0);
-        Integer constantsNamingGoogle = new Integer(0);
-        Integer fieldsNamingOther = new Integer(0);
-        Integer fieldsNamingLowerSnake = new Integer(0);
-        Integer fieldsNamingGoogle = new Integer(0);
-        String repoUrl;
-        Integer linesOfCode = new Integer(0);
-        Integer totalFiles = new Integer(0);
-        */
+        return finalSummary;
     }
 
     private Integer addImports(JSONObject o) throws JSONException {
