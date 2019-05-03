@@ -19,8 +19,10 @@ def print_err_msg(owner, repo, err_type, msg):
 # Analyze the list of repositories in an input file
 # Lines that are empty or begin with a space or pound character will be skipped
 def read_from_file(file_name, output_setting, mdb_name, mdb_password, mdb_cluster, mdb_database, mdb_collection):
-    infile = open(file_name, 'r')
-    lines = infile.readlines()
+    infile_pending = open(file_name, 'r')
+    infile_error = open("error.txt", 'a')
+    infile_analyzed = open("analyzed.txt", 'a')
+    lines = infile_pending.readlines()
     # lines is having multiple file names appending to it on case of execution failure
     for i in range(len(lines)):
         if lines[i].startswith("#") or lines[i].startswith(" ")\
@@ -37,10 +39,13 @@ def read_from_file(file_name, output_setting, mdb_name, mdb_password, mdb_cluste
             else:
                 print("The " + repo + " repository by " + owner + " has already been analyzed and uploaded to MongoDB. "
                                       "Skipping analysis of this repository.")
+            infile_analyzed.write(lines[i]); #here we might be adding duplicate entries on the analyzed file
         except SyntaxError as e:
             print_err_msg(owner, repo, "SyntaxError", e.msg)
+            infile_error.write(lines[i])
         except UnicodeDecodeError as u:
             print_err_msg(owner, repo, "UnicodeDecodeError", u.reason)
+            infile_error.write(lines[i])
         # Remove the local clone of the file directories
         delete_local_tree_clone(LOCAL_PATH + "/" + repo)
 
