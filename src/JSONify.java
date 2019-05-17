@@ -1,9 +1,7 @@
+import config.Config;
 import org.json.JSONObject;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 
 public class JSONify {
@@ -14,7 +12,9 @@ public class JSONify {
         this.fp = fp;
     }
 
-    public JSONObject JSONify() {
+    public JSONObject JSONify(String repoURL, String filePath) {
+        String repoURLowner = repoURL.split("/repos/")[1];
+
         JSONObject obj = new JSONObject();
         JSONObject classJSON = new JSONObject();
         try {
@@ -23,6 +23,8 @@ public class JSONify {
             obj.put("package", fp.packageDecName);
 
             // class attributes
+            obj.put("repoURL", repoURLowner);
+            obj.put("filename", filePath);
             JSONifyClassNames(classJSON);
             JSONifyBlankLines(classJSON);
             JSONifyConstants(classJSON);
@@ -33,7 +35,7 @@ public class JSONify {
             obj.put("class", classJSON);
 
             // store the json object locally
-            // storeJSONLocally(obj);
+            storeJSONLocally(obj);
             /**
              * Delete this print....
              */
@@ -59,7 +61,6 @@ public class JSONify {
         int google = 0;
         int other = 0;
         JSONObject classNames = new JSONObject();
-
         for(boolean classNameStyle : fp.nr.classes) {
             if(classNameStyle) {
                 google++;
@@ -129,7 +130,6 @@ public class JSONify {
         } else {
             styles = fp.nr.fields;
         }
-
         for (int field : styles) {
             if (field == 2) {
                 google++;
@@ -204,6 +204,7 @@ public class JSONify {
         try {
             methodObject.put("line_length", fp.linesExceeding); // # of lines exceeding
             JSONifyFields(methodObject, true, false); // add local variables
+            System.out.println(methodObject);
             JSONifyBraces(methodObject);
 
             classObject.put("methods", methodObject);

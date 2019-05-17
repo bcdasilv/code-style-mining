@@ -3,8 +3,8 @@ This project aims at mining public software repositories on GitHub in order to m
 
 Properties file:
 The properties file provides a way to supply information for running the Java code without pushing private or unnecessary data to the repository.
-One needs to create a file called javaAnalysis.properties file in the same directory as the project.
-The Config class communicates with this .properties file to supply information to the Java project.
+One needs to create a file called javaAnalysis.properties file in the same directory as the project (above src).
+The config.Config class communicates with this .properties file to supply information to the Java project.
 
 The structure of the .properties file is such:
 
@@ -24,6 +24,31 @@ tempJavaFilePath = "\<path>\"
 
 tempJSONFilePath = "\<path>\"
 
-- The :owner/:repo that is used in a GET through the GitHub API.
+- The file path for :owner/:repo that is used in a GET through the GitHub API.
 
 repoURLsPath = "\<repo urls path\>"
+
+ - MongoDB username   
+ 
+mongoUsername = "\<mongoUsername>\"
+
+ - MongoDB password   
+
+mongoPassword = "\<mongoPassword>\"
+
+ - MongoDB cluster url 
+ 
+ mongoUrl = "\<mongoUrl>\"
+ 
+  - MongoDB database name
+
+ mongoDatabase = "\<mongoDatabase>\"
+ 
+   - MongoDB collection name
+   
+ mongoCollection = "\<mongoCollection>\"
+
+
+
+  
+

@@ -7,9 +7,9 @@ public class MainParser {
 	public static JSONifySummary summary;
 	
 	public static void main(String[] args) {
-		summary = new JSONifySummary();
-		fp = new FileParser(summary);
-		RepoTraversal tester = new RepoTraversal(summary);
+		//summary = new JSONifySummary();
+		//fp = new FileParser(summary);
+		RepoTraversal tester = new RepoTraversal();
 
 		tester.findJavaFilesToParse();
 	}
