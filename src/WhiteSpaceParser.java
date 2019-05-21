@@ -46,6 +46,7 @@ public class WhiteSpaceParser {
 		int numLineSpaces = 0;
 		String line;
 		int indent;
+		int local = 0;
 
 		for(i = 0; i < methodLines.length; i++) {
 			cnt = 0;
@@ -67,13 +68,20 @@ public class WhiteSpaceParser {
 				if((line.length() >= 2) && (line.charAt(line.length() - 1) == '{')) {
 					indent = updateSpaceCount(methodLines, i);
 					if(indent > 0) {
-						indents.add(indent);					
+						indents.add(indent);
+						local++;
 						maxIndent = Math.max(indent, maxIndent);
 						minIndent = Math.min(indent, minIndent);
 					}
 				}
 			}
-
+			if (i == methodLines.length-1) {
+				if (local < minIndent)
+					minIndent = local;
+				if (local > maxIndent)
+					maxIndent = local;
+				local = 0;
+			}
 		}
 		
 		// Computing Results
