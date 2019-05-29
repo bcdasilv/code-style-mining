@@ -1,6 +1,10 @@
 import java.io.*;
 
+import com.mongodb.DBCursor;
+import com.mongodb.client.FindIterable;
 import config.Config;
+import mongo.MongoCollectionClient;
+import org.bson.Document;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import java.util.ArrayList;
@@ -8,6 +12,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import org.apache.commons.codec.binary.Base64;
 import util.UrlFilepathPair;
+
+import javax.print.Doc;
 
 public class RepoTraversal {
     private static final Config config = Config.getInstance();
@@ -77,6 +83,7 @@ public class RepoTraversal {
         try {
             ArrayList<UrlFilepathPair> urls = traverseTreeForFileURLs(repoURL);
             //create a summary obj for this repo
+            System.out.println(repoURL);
             JSONifySummary repoSummary = new JSONifySummary(numFiles, numJavaFiles);
             //UrlFilepathPair contains the blob url and the file path of the blob
             for(UrlFilepathPair url : urls) {
@@ -87,12 +94,26 @@ public class RepoTraversal {
             }
             //repo summary is populated with results for each file.
             //need to summarize the results into jsonobject
-            JSONObject repoSummaryResults = repoSummary.writeResults();
-            System.out.println(repoSummaryResults);
+            JSONObject repo_analysis = repoSummary.getRepoErrorSummary();
+            //save results
+            insertRepoSummary(repo_analysis.toString());
+            System.out.println(repo_analysis);
         } catch(Exception e) {
             e.printStackTrace();
         }
         //return summary
+    }
+
+    private void insertRepoSummary(String repoSummary) {
+        MongoCollectionClient client = MongoCollectionClient.getInstance();
+        FindIterable<Document> results = client.getJavaCollection().find(Document.parse(repoSummary));
+        boolean exists = false;
+        for (Document doc:results) {
+            if (doc != null)
+                exists = true;
+        }
+        if (!exists)
+            client.getJavaCollection().insertOne(Document.parse(repoSummary));
     }
 
     private ArrayList<UrlFilepathPair> traverseTreeForFileURLs(String repoURL) {

@@ -70,11 +70,12 @@ public class WhiteSpaceParser {
 					if(indent > 0) {
 						indents.add(indent);
 						local++;
-						maxIndent = Math.max(indent, maxIndent);
-						minIndent = Math.min(indent, minIndent);
+						//maxIndent = Math.max(indent, maxIndent);
+						//minIndent = Math.min(indent, minIndent);
 					}
 				}
 			}
+
 			if (i == methodLines.length-1) {
 				if (local < minIndent)
 					minIndent = local;
@@ -82,6 +83,7 @@ public class WhiteSpaceParser {
 					maxIndent = local;
 				local = 0;
 			}
+
 		}
 		
 		// Computing Results

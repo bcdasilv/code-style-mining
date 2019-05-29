@@ -8,6 +8,7 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import config.Config;
 import org.bson.Document;
+import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -56,4 +57,5 @@ public class MongoCollectionClient {
     public MongoCollection<Document> getJavaCollection() {
         return javaCollection;
     }
+
 }
