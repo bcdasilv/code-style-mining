@@ -1,4 +1,3 @@
-import com.mongodb.util.JSON;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -13,7 +12,7 @@ import java.util.ArrayList;
 public class JSONifySummary {
 
     ArrayList<JSONObject> fileJSONObjects = new ArrayList<>();
-    public JSONObject finalSummary;
+    private JSONObject finalSummary;
     private Integer methodsVariableOther;
     private Integer methodsVariableLowerSnake;
     private Integer methodsVariablesGoogle;
@@ -47,12 +46,14 @@ public class JSONifySummary {
     private Integer linesOfCodes;
     private Integer totalFiles;
     private Integer totalJavaFiles;
-    private Integer totalImports;
+    private Integer totalImportWilcards;
+    private Integer indentError;
 
     public JSONifySummary(Long totalFiles, Long totalJavaFiles) {
         finalSummary = new JSONObject();
         this.totalFiles = totalFiles.intValue();
         this.totalJavaFiles = totalJavaFiles.intValue();
+        this.indentError = 0;
         this.methodsVariableOther = 0;
         this.methodsVariableLowerSnake = 0;
         this.methodsVariablesGoogle = 0;
@@ -84,7 +85,7 @@ public class JSONifySummary {
         this.blankLinesPassed = 0;
         this.repoUrl = "";
         this.linesOfCodes = 0;
-        this.totalImports = 0;
+        this.totalImportWilcards = 0;
     }
 
     public void addObject(JSONObject o) {
@@ -96,14 +97,23 @@ public class JSONifySummary {
         linesOfCodes += lines;
     }
 
+    public JSONObject getRepoErrorSummary() throws JSONException {
+        TotalCategoryErrors generator = new TotalCategoryErrors(this);
+        return generator.createErrorSummary();
+    }
+
     public void addToFinalSummary(JSONObject o) {
         try {
+            //count indent errors
+            if (getMethodsIndentsTabs(o) > 0) {
+                indentError++;
+            }
             //count imports
-            totalImports += addImports(o);
+            totalImportWilcards += addImportsWildcards(o);
             //add blank lines = failure if there is a blank line
             getBlankLines(o);
             //add method variables naming results
-            repoUrl = o.get("repoURL").toString();
+            repoUrl = getRepoUrl(o);
             methodsVariableLowerSnake += getMethodsVariablesNamingLowerSnake(o);
             methodsVariableOther += getMethodsVariablesNamingOther(o);
             methodsVariablesGoogle += getMethodsVariablesNamingGoogle(o);
@@ -181,13 +191,16 @@ public class JSONifySummary {
         return finalSummary;
     }
 
-    private Integer addImports(JSONObject o) throws JSONException {
+    private Integer addImportsWildcards(JSONObject o) throws JSONException {
         String result = o.get("import").toString();
         if (result.equals("true"))
             return 1;
         return 0;
     }
 
+    private String getRepoUrl(JSONObject o) throws JSONException {
+        return o.get("repoURL").toString();
+    }
     private JSONObject getClassJSONObject(JSONObject o) throws JSONException {
         return o.getJSONObject("class");
     }
@@ -353,4 +366,147 @@ public class JSONifySummary {
         return Integer.parseInt(getFieldsNamingJSONObject(o).get("google").toString());
     }
 
+    public Integer getMethodsVariableOther() {
+        return methodsVariableOther;
+    }
+
+    public Integer getMethodsVariableLowerSnake() {
+        return methodsVariableLowerSnake;
+    }
+
+    public Integer getMethodsVariablesGoogle() {
+        return methodsVariablesGoogle;
+    }
+
+    public Integer getMethodsIndentsTabs() {
+        return methodsIndentsTabs;
+    }
+
+    public Integer getMethodsIndentsSpaces() {
+        return methodsIndentsSpaces;
+    }
+
+    public Integer getMethodsIndentsMinIndent() {
+        return methodsIndentsMinIndent;
+    }
+
+    public Integer getMethodsIndentsAvgIndent() {
+        return methodsIndentsAvgIndent;
+    }
+
+    public Integer getMethodsIndentsMaxIndent() {
+        return methodsIndentsMaxIndent;
+    }
+
+    public Integer getMethodsLineLength() {
+        return methodsLineLength;
+    }
+
+    public Integer getMethodsNamingOther() {
+        return methodsNamingOther;
+    }
+
+    public Integer getMethodsNamingLowerSnake() {
+        return methodsNamingLowerSnake;
+    }
+
+    public Integer getMethodsNamingGoogle() {
+        return methodsNamingGoogle;
+    }
+
+    public Integer getMethodsCurlyBracesSingleOther() {
+        return methodsCurlyBracesSingleOther;
+    }
+
+    public Integer getMethodsCurlyBracesSingleAllman() {
+        return methodsCurlyBracesSingleAllman;
+    }
+
+    public Integer getMethodsCurlyBracesSingleExKr() {
+        return methodsCurlyBracesSingleExKr;
+    }
+
+    public Integer getMethodsCurlyBracesSingleGoogle() {
+        return methodsCurlyBracesSingleGoogle;
+    }
+
+    public Integer getMethodsCurlyBracesMultipleOther() {
+        return methodsCurlyBracesMultipleOther;
+    }
+
+    public Integer getMethodsCurlyBracesMultipleAllman() {
+        return methodsCurlyBracesMultipleAllman;
+    }
+
+    public Integer getMethodsCurlyBracesMultipleExKr() {
+        return methodsCurlyBracesMultipleExKr;
+    }
+
+    public Integer getMethodsCurlyBracesMultipleGoogle() {
+        return methodsCurlyBracesMultipleGoogle;
+    }
+
+    public Integer getNamingOther() {
+        return namingOther;
+    }
+
+    public Integer getNamingGoogle() {
+        return namingGoogle;
+    }
+
+    public Integer getConstantsNamingOther() {
+        return constantsNamingOther;
+    }
+
+    public Integer getConstantsNamingGoogle() {
+        return constantsNamingGoogle;
+    }
+
+    public Integer getFieldsNamingOther() {
+        return fieldsNamingOther;
+    }
+
+    public Integer getFieldsNamingLowerSnake() {
+        return fieldsNamingLowerSnake;
+    }
+
+    public Integer getFieldsNamingGoogle() {
+        return fieldsNamingGoogle;
+    }
+
+    public Integer getBlankLinesFailed() {
+        return blankLinesFailed;
+    }
+
+    public Integer getBlankLinesPassed() {
+        return blankLinesPassed;
+    }
+
+    public String getRepoUrl() {
+        return repoUrl;
+    }
+
+    public Integer getLinesOfCodes() {
+        return linesOfCodes;
+    }
+
+    public Integer getTotalFiles() {
+        return totalFiles;
+    }
+
+    public Integer getTotalJavaFiles() {
+        return totalJavaFiles;
+    }
+
+    public Integer getTotalImportWilcards() {
+        return totalImportWilcards;
+    }
+
+    public Integer getIndentError() {
+        return indentError;
+    }
+
+    public JSONObject getFinalSummary() {
+        return finalSummary;
+    }
 }
