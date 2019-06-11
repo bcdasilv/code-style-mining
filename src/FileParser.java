@@ -82,7 +82,7 @@ public class FileParser {
 					classWPSoFar &= wp.parseWhiteSpaceBetweenMethods(linesOfFile, methodBody.length, i, methods);
 				}
 
-				System.out.println("\nParsing method:\t\t" + name);
+				//System.out.println("\nParsing method:\t\t" + name);
 				
 				parseLineLengths(methodBody);
 				braces.add(bp.parseMethodBraces(methodBody));	

@@ -204,7 +204,7 @@ public class JSONify {
         try {
             methodObject.put("line_length", fp.linesExceeding); // # of lines exceeding
             JSONifyFields(methodObject, true, false); // add local variables
-            System.out.println(methodObject);
+            //System.out.println(methodObject);
             JSONifyBraces(methodObject);
 
             classObject.put("methods", methodObject);

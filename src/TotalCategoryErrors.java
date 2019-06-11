@@ -18,7 +18,7 @@ public class TotalCategoryErrors {
         sum.put("repo_errors", computeRepoErrors());
         sum.put("total_category_errors", computeTotalCategoryErrors());
         repo_analysis.put("summary", sum);
-        System.out.println(summary.getFinalSummary());
+        //System.out.println(summary.getFinalSummary());
         repo_analysis.put("analysis", summary.writeResults());
         return repo_analysis;
     }
