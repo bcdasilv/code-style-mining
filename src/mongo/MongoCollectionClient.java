@@ -2,18 +2,13 @@ package mongo;
 
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
-import com.mongodb.MongoCredential;
-import com.mongodb.ServerAddress;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import config.Config;
 import org.bson.Document;
-import org.json.JSONObject;
-
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.LoggerContext;
+import org.slf4j.LoggerFactory;
 
 /**
  * Singleton implementation for accessing MongoDB mongo that returns only the necessary java collection to save analysis results.
@@ -46,6 +41,7 @@ public class MongoCollectionClient {
             System.err.println("Invalid MongoDB configuration details");
             e.printStackTrace();
         }
+        ((LoggerContext) LoggerFactory.getILoggerFactory()).getLogger("org.mongodb.driver").setLevel(Level.ERROR);
     }
 
     public static MongoCollectionClient getInstance() {

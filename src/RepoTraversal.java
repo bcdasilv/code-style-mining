@@ -6,6 +6,7 @@ import config.Config;
 import mongo.MongoCollectionClient;
 import org.bson.Document;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import java.util.ArrayList;
 import java.net.HttpURLConnection;
@@ -27,13 +28,15 @@ public class RepoTraversal {
 
     public void findJavaFilesToParse() {
         ArrayList<String> repoURLs = getRepoURLsFromConfig();
+        int count = 0;
         for(String url : repoURLs) {
-            System.out.println("Analyzing " + url);
+            System.out.println("Analyzing " + url + " (" + (++count) + "/" + repoURLs.size() + ")");
             JSONObject result = traverseRepoForFileContent(url);
             if (result != null) {
                 insertRepoSummary(result);
                 String repoName = url.split("/repos/")[1].split("/branches")[0];
                 markFileAsDone(repoName, repoURLs);
+                System.out.println("Finished analyzing " + url+ " (" + (count) + "/" + repoURLs.size() + ")");
             }
         }
     }
@@ -142,7 +145,13 @@ public class RepoTraversal {
     private boolean insertRepoSummary(JSONObject repo) {
         String repoSummary = repo.toString();
         MongoCollectionClient client = MongoCollectionClient.getInstance();
-        FindIterable<Document> results = client.getJavaCollection().find(Document.parse(repoSummary));
+        JSONObject query = new JSONObject();
+        try {
+            query.put("repo_url", repo.get("repo_url"));
+        } catch (JSONException e){
+            e.printStackTrace();
+        }
+        FindIterable<Document> results = client.getJavaCollection().find(Document.parse(query.toString()));
         boolean exists = false;
         for (Document doc:results) {
             if (doc != null)

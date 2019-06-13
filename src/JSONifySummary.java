@@ -48,6 +48,8 @@ public class JSONifySummary {
     private Integer totalJavaFiles;
     private Integer totalImportWilcards;
     private Integer indentError;
+    private JSONObject individual_summary;
+    int count;
 
     public JSONifySummary(Long totalFiles, Long totalJavaFiles) {
         finalSummary = new JSONObject();
@@ -86,11 +88,18 @@ public class JSONifySummary {
         this.repoUrl = "";
         this.linesOfCodes = 0;
         this.totalImportWilcards = 0;
+        this.individual_summary = new JSONObject();
+        this.count = 0;
     }
 
     public void addObject(JSONObject o) {
         fileJSONObjects.add(o);
         addToFinalSummary(o);
+        try {
+            individual_summary.put(String.valueOf(count++), o);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     public void addLinesOfCode(Integer lines) {
@@ -99,7 +108,9 @@ public class JSONifySummary {
 
     public JSONObject getRepoErrorSummary() throws JSONException {
         TotalCategoryErrors generator = new TotalCategoryErrors(this);
-        return generator.createErrorSummary();
+        JSONObject reposummary = generator.createErrorSummary(individual_summary);
+        //reposummary.put("individual_analysis", individual_summary);
+        return reposummary;
     }
 
     public void addToFinalSummary(JSONObject o) {
