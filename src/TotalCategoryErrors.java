@@ -9,7 +9,7 @@ public class TotalCategoryErrors {
         this.summary = summary;
     }
 
-    public JSONObject createErrorSummary() throws JSONException {
+    public JSONObject createErrorSummary(JSONObject individualAnalysis) throws JSONException {
         JSONObject repo_analysis = new JSONObject();
         JSONObject sum = new JSONObject();
         repo_analysis.put("repo_url", summary.getRepoUrl());
@@ -17,9 +17,10 @@ public class TotalCategoryErrors {
         sum.put("total_analyzed_files", summary.getTotalJavaFiles());
         sum.put("repo_errors", computeRepoErrors());
         sum.put("total_category_errors", computeTotalCategoryErrors());
-        repo_analysis.put("summary", sum);
-        System.out.println(summary.getFinalSummary());
+        repo_analysis.put("error_summary", sum);
+        //System.out.println(summary.getFinalSummary());
         repo_analysis.put("analysis", summary.writeResults());
+        repo_analysis.put("individual_analysis", individualAnalysis);
         return repo_analysis;
     }
 

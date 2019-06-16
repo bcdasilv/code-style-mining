@@ -1,3 +1,5 @@
+import org.json.JSONException;
+
 public class MainParser {
 	public static final String gitURL = "https://github.com/janani-sridhar/CaesarCipher";
 	public static final String directory = "/Users/jananisridhar/Desktop/CC";
@@ -6,7 +8,7 @@ public class MainParser {
 	public static FileParser fp;
 	public static JSONifySummary summary;
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws JSONException {
 		//summary = new JSONifySummary();
 		//fp = new FileParser(summary);
 		RepoTraversal tester = new RepoTraversal();

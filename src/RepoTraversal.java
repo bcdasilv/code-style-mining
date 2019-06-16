@@ -6,6 +6,7 @@ import config.Config;
 import mongo.MongoCollectionClient;
 import org.bson.Document;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import java.util.ArrayList;
 import java.net.HttpURLConnection;
@@ -27,8 +28,43 @@ public class RepoTraversal {
 
     public void findJavaFilesToParse() {
         ArrayList<String> repoURLs = getRepoURLsFromConfig();
+        int count = 0;
         for(String url : repoURLs) {
-            traverseRepoForFileContent(url);
+            System.out.println("Analyzing " + url + " (" + (++count) + "/" + repoURLs.size() + ")");
+            JSONObject result = traverseRepoForFileContent(url);
+            if (result != null) {
+                insertRepoSummary(result);
+                String repoName = url.split("/repos/")[1].split("/branches")[0];
+                markFileAsDone(repoName, repoURLs);
+                System.out.println("Finished analyzing " + url+ " (" + (count) + "/" + repoURLs.size() + ")");
+            }
+        }
+    }
+
+    private void markFileAsDone(String repoName, ArrayList<String> repoURLS) {
+        ArrayList<String> lines = new ArrayList<String>();
+        try {
+            String repoListPath = config.getRepoURLsPath();
+            BufferedReader br = new BufferedReader(new FileReader(repoListPath));
+            String line;
+            while ((line = br.readLine()) != null) {
+                if (line.equals(repoName)) {
+                    lines.add("#" + line);
+                } else {
+                    lines.add(line);
+                }
+            }
+            br.close();
+            FileWriter f1 = new FileWriter(repoListPath);
+            BufferedWriter bw = new BufferedWriter(f1);
+            for (String s: lines) {
+                bw.write(s);
+                bw.newLine();
+                bw.flush();
+            }
+            bw.close();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -71,7 +107,7 @@ public class RepoTraversal {
         }
     }
 
-    private void traverseRepoForFileContent(String repoURL) {
+    private JSONObject traverseRepoForFileContent(String repoURL) {
         /**
          * delete
          */
@@ -79,11 +115,11 @@ public class RepoTraversal {
         /**
          * End delete
          */
-
+        JSONObject repoAnalysis;
         try {
             ArrayList<UrlFilepathPair> urls = traverseTreeForFileURLs(repoURL);
             //create a summary obj for this repo
-            System.out.println(repoURL);
+            //System.out.println(repoURL);
             JSONifySummary repoSummary = new JSONifySummary(numFiles, numJavaFiles);
             //UrlFilepathPair contains the blob url and the file path of the blob
             for(UrlFilepathPair url : urls) {
@@ -94,26 +130,38 @@ public class RepoTraversal {
             }
             //repo summary is populated with results for each file.
             //need to summarize the results into jsonobject
-            JSONObject repo_analysis = repoSummary.getRepoErrorSummary();
+            repoAnalysis = repoSummary.getRepoErrorSummary();
             //save results
-            insertRepoSummary(repo_analysis.toString());
-            System.out.println(repo_analysis);
+            //insertRepoSummary(repoAnalysis.toString());
+            //System.out.println(repoAnalysis);
+            return repoAnalysis;
         } catch(Exception e) {
             e.printStackTrace();
+            return null;
         }
         //return summary
     }
 
-    private void insertRepoSummary(String repoSummary) {
+    private boolean insertRepoSummary(JSONObject repo) {
+        String repoSummary = repo.toString();
         MongoCollectionClient client = MongoCollectionClient.getInstance();
-        FindIterable<Document> results = client.getJavaCollection().find(Document.parse(repoSummary));
+        JSONObject query = new JSONObject();
+        try {
+            query.put("repo_url", repo.get("repo_url"));
+        } catch (JSONException e){
+            e.printStackTrace();
+        }
+        FindIterable<Document> results = client.getJavaCollection().find(Document.parse(query.toString()));
         boolean exists = false;
         for (Document doc:results) {
             if (doc != null)
                 exists = true;
         }
-        if (!exists)
+        if (!exists) {
             client.getJavaCollection().insertOne(Document.parse(repoSummary));
+            return true;
+        }
+        return false;
     }
 
     private ArrayList<UrlFilepathPair> traverseTreeForFileURLs(String repoURL) {
@@ -228,6 +276,10 @@ public class RepoTraversal {
             BufferedReader br = new BufferedReader(new FileReader(repoURLsPath));
             String line;
             while((line = br.readLine()) != null)   {
+                if (line.charAt(0) == '#') {
+                    System.out.println("Skipping " + line + " repo");
+                    continue;
+                }
                 StringBuilder sb = new StringBuilder();
                 sb.append("https://api.github.com/repos/");
                 sb.append(line);
