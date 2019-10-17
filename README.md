@@ -9,45 +9,45 @@ The config.Config class communicates with this .properties file to supply inform
 
 The structure of the .properties file is as follows (don't include the brackets):
 
-<name> = <data>
+\<name\> = \<data\>
 
 For the purposes of running the Java analysis code, one needs to supply the given information:
 
-- The personal auth token generated from GitHub. Found [here] (github.com/settings/tokens)
+- The personal auth token generated from GitHub. Found [here](https://github.com/settings/tokens)
 
-authToken = <auth token>
+authToken = \<auth token\>
 
 - The file path for the local storage of the Java file being parsed.
 
-tempJavaFilePath = <path>
+tempJavaFilePath = \<path\>
 
 - The file path for the local storage of the JSONification of analysis.
 
-tempJSONFilePath = <path>
+tempJSONFilePath = \<path\>
 
 - The file path for the repo list. It will be file with lines in this format :owner/:repo and will be fetched with a GET through the GitHub API.
 
-repoURLsPath = <repo urls path>
+repoURLsPath = \<repo urls path\>
 
  - MongoDB project username. Found on MongoDB User page for the project.
  
-mongoUsername = <mongoUsername>
+mongoUsername = \<mongoUsername\>
 
  - MongoDB project password. Found on MongoDB User page for the project.
 
-mongoPassword = <mongoPassword>
+mongoPassword = \<mongoPassword\>
 
  - MongoDB cluster url. Get this from Overview page > connect > Connect your application
  
- mongoUrl = <mongoUrl>
+ mongoUrl = \<mongoUrl\>
  
   - MongoDB database name
 
- mongoDatabase = <mongoDatabase>
+ mongoDatabase = \<mongoDatabase\>
  
    - MongoDB collection name
    
- mongoCollection = <mongoCollection>
+ mongoCollection = \<mongoCollection\>
 
 
 
