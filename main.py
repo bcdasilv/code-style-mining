@@ -4,13 +4,12 @@ import sys
 import urllib.parse
 import pymongo
 import config
+import os.path
 
 from repo_analyzer import C_REPO_FULL_NAME, C_REPO_NAME, LOCAL_PATH, \
     analyze_repo, delete_local_tree_clone, set_oauth_token, reset_summary
 from verify_repo_mongo import check_duplicate_repo
 import naming_analyzer as naming
-
-
 
 def print_err_msg(owner, repo, err_type, msg):
     print("{} in {}'s {} repository: {}".format(err_type, owner, repo, msg))
@@ -49,7 +48,6 @@ def read_from_file(file_name, output_setting, mdb_name, mdb_password, mdb_cluste
         # Remove the local clone of the file directories
         delete_local_tree_clone(LOCAL_PATH + "/" + repo)
 
-
 # Write data to a cluster's database with a specific collection name
 # Authenticate with given username and password
 def write_to_mongodb(mongodb_user, mongodb_password, cluster, db_name, coll_name, data):
@@ -83,27 +81,52 @@ def handle_output(setting, results, mdb_name, mdb_password, mdb_cluster, mdb_dat
     else:
         raise ValueError("Unrecognized handle_output setting")
 
-
 # Input and output will both be in the console, unless cmdline args specify otherwise
 def main(argv):
-
-    usage_msg = "Usage: python3 main.py <GitHub_OAuth_token> [-file <file_name>] " \
-                "[-mongodb <username> <password> <cluster> <database> <collection>]"
-
-    if len(argv) < 1:
-        raise ValueError(usage_msg)
-
-    set_oauth_token(argv[0])
-
-    input_setting = "c"
-    output_setting = "c"
+    oauth_token = None
+    file_name = None
     mdb_name = None
     mdb_password = None
     mdb_cluster = None
     mdb_database = None
     mdb_collection = None
 
-    if len(argv) > 1:
+    input_setting = "c"
+    output_setting = "c"
+    usage_msg = "Usage: python3 main.py <GitHub_OAuth_token> [-file <file_name>] " \
+                "[-mongodb <username> <password> <cluster> <database> <collection>]"
+
+    if os.path.exists('pythonAnalysis.properties'):
+        print("")
+        try:
+            file = open('pythonAnalysis.properties', 'r')
+            line = file.readline()
+            while line:
+                conf_line = [l.strip() for l in line.split('=')]
+                line = file.readline()
+                if conf_line[0] == "authToken":
+                    oauth_token = conf_line[1]
+                elif conf_line[0] == "repoURLsPath":
+                    file_name = conf_line[1]
+                elif conf_line[0] == "mongoUsername":
+                    mdb_name = conf_line[1]
+                elif conf_line[0] == "mongoPassword":
+                    mdb_password = conf_line[1]
+                elif conf_line[0] == "mongoUrl":
+                    mdb_cluster = conf_line[1]
+                elif conf_line[0] == "mongoDatabase":
+                    mdb_database = conf_line[1]
+                elif conf_line[0] == "mongoCollection":
+                    mdb_collection = conf_line[1]
+
+            file.close()
+            input_setting = "f"
+            output_setting = "m"
+        except IOError:
+            pass
+
+    elif len(argv) == 9:
+        oauth_token = argv[0]
 
         try:
             file_cmd_index = argv.index("-file")
@@ -129,18 +152,14 @@ def main(argv):
                 mdb_cluster = argv[mongodb_cmd_index + 3]
                 mdb_database = argv[mongodb_cmd_index + 4]
                 mdb_collection = argv[mongodb_cmd_index + 5]
-                config.mongo_name = mdb_name
-                config.mongo_password = mdb_password
-                config.mongo_collection = mdb_collection
-                config.mongo_database = mdb_database
-                config.mongo_cluster = mdb_cluster
             except IndexError:
                 print(usage_msg)
                 return
-
     else:
         input_setting = None
         output_setting = None
+
+        print("No pythonAnalysis.properties file or insufficient command line arguments given.")
 
         if output_setting not in ('m', 'c'):
             output_setting = input("Output setting: Would you like to write the "
@@ -159,6 +178,13 @@ def main(argv):
         print()
         if input_setting == "f":
             file_name = input("File name: ")
+
+    set_oauth_token(oauth_token)
+    config.mongo_name = mdb_name
+    config.mongo_password = mdb_password
+    config.mongo_collection = mdb_collection
+    config.mongo_database = mdb_database
+    config.mongo_cluster = mdb_cluster
 
     if input_setting == "c":
         # TODO: got to be a better way to do this
