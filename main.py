@@ -96,36 +96,7 @@ def main(argv):
     usage_msg = "Usage: python3 main.py <GitHub_OAuth_token> [-file <file_name>] " \
                 "[-mongodb <username> <password> <cluster> <database> <collection>]"
 
-    if os.path.exists('pythonAnalysis.properties'):
-        print("")
-        try:
-            file = open('pythonAnalysis.properties', 'r')
-            line = file.readline()
-            while line:
-                conf_line = [l.strip() for l in line.split('=')]
-                line = file.readline()
-                if conf_line[0] == "authToken":
-                    oauth_token = conf_line[1]
-                elif conf_line[0] == "repoURLsPath":
-                    file_name = conf_line[1]
-                elif conf_line[0] == "mongoUsername":
-                    mdb_name = conf_line[1]
-                elif conf_line[0] == "mongoPassword":
-                    mdb_password = conf_line[1]
-                elif conf_line[0] == "mongoUrl":
-                    mdb_cluster = conf_line[1]
-                elif conf_line[0] == "mongoDatabase":
-                    mdb_database = conf_line[1]
-                elif conf_line[0] == "mongoCollection":
-                    mdb_collection = conf_line[1]
-
-            file.close()
-            input_setting = "f"
-            output_setting = "m"
-        except IOError:
-            pass
-
-    elif len(argv) == 9:
+    if len(argv) == 9:
         oauth_token = argv[0]
 
         try:
@@ -155,6 +126,35 @@ def main(argv):
             except IndexError:
                 print(usage_msg)
                 return
+    elif os.path.exists('pythonAnalysis.properties'):
+        print("")
+        try:
+            file = open('pythonAnalysis.properties', 'r')
+            line = file.readline()
+            while line:
+                conf_line = [l.strip() for l in line.split('=')]
+                line = file.readline()
+                if conf_line[0] == "authToken":
+                    oauth_token = conf_line[1]
+                elif conf_line[0] == "repoURLsPath":
+                    file_name = conf_line[1]
+                elif conf_line[0] == "mongoUsername":
+                    mdb_name = conf_line[1]
+                elif conf_line[0] == "mongoPassword":
+                    mdb_password = conf_line[1]
+                elif conf_line[0] == "mongoUrl":
+                    mdb_cluster = conf_line[1]
+                elif conf_line[0] == "mongoDatabase":
+                    mdb_database = conf_line[1]
+                elif conf_line[0] == "mongoCollection":
+                    mdb_collection = conf_line[1]
+
+            file.close()
+            input_setting = "f"
+            output_setting = "m"
+        except IOError:
+            pass
+
     else:
         input_setting = None
         output_setting = None
