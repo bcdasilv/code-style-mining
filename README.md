@@ -26,3 +26,14 @@ Start the pipenv with
 ```pipenv shell```   
 Start the application   
 ```python3 main.py <GitHub_OAuth_token> [-file <file_name>] [-mongodb <username> <password> <cluster> <database> <collection>]```
+
+OR  
+
+Run \"python main.py\" with a file at root level called pythonAnalysis.properties with these options:  
+authToken = <github api token>  
+repoURLsPath= <file path that has repo list>  
+mongoUsername = <mongodb username>  
+mongoPassword = <mongodb password>  
+mongoUrl = <mongodb cluster>  
+mongoDatabase = <mongodb database name>    
+mongoCollection = <mongodb collection name>  
