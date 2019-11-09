@@ -3,6 +3,7 @@ import string
 import sys
 
 from pycodestyle import BaseReport, Checker, StyleGuide
+from python_loc_counter import LOCCounter
 
 import naming_analyzer as naming
 
@@ -100,12 +101,21 @@ def create_json_dict(counters, file_name):
     obj = {"total_file_errors": None}
     # SyntaxError
     names = naming.naming_results(file_name)
+    counter = LOCCounter(file_name)
+    loc_data = counter.getLOC()
     indents = json_check_errors(counters, INDENT_ERRORS)
     tabs = json_check_errors(counters, TABS_SPACES_ERRORS)
     length = json_check_errors(counters, LINE_LENGTH_ERRORS)
     blanks = json_check_errors(counters, BLANK_LINE_ERRORS)
     imports = json_check_errors(counters, IMPORT_ERRORS)
     obj[NAMES + "_analysis"] = names[0]
+    obj["src_loc_analysis"] = loc_data['source_loc']
+    obj["blank_loc_analysis"] = loc_data['blank_loc']
+    obj["single_comments_loc_analysis"] = loc_data['single_comments_loc']
+    obj["single_docstring_loc_analysis"] = loc_data['single_docstring_loc']
+    obj["double_docstring_loc_analysis"] = loc_data['double_docstring_loc']
+    obj["total_comments_loc_analysis"] = loc_data['total_comments_loc']
+    obj["line_count_analysis"] = loc_data['total_line_count']
     obj[INDENTS + "_analysis"] = indents[0]
     obj[TABS + "_analysis"] = tabs[0]
     obj[LENGTH + "_analysis"] = length[0]

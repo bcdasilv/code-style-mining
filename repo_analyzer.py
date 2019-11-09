@@ -57,9 +57,16 @@ C_REPO_ANALYSIS = "repo_analysis"
 C_SHA = "sha"
 C_SIZE = "size"
 C_SUMMARY = "summary"
+C_TOTAL_BLANK_LOC = "total_blank_loc"
 C_TOTAL_CAT = "total_category_errors"
+C_TOTAL_COMMENTS_LOC = "total_comments_loc"
+C_TOTAL_DOUBLE_DOCSTRINGS_LOC = "total_double_docstrings_loc"
 C_TOTAL_FILE = "total_file_errors"
+C_TOTAL_LINE_COUNT = "total_line_count"
 C_TOTAL_REPO = "total_repo_errors"
+C_TOTAL_SINGLE_COMMENTS_LOC = "total_single_comments_loc"
+C_TOTAL_SINGLE_DOCSTRINGS_LOC = "total_single_docstrings_loc"
+C_TOTAL_SRC_LOC = "total_src_loc"
 C_TYPE = "type"
 C_URL = "url"
 
@@ -75,6 +82,13 @@ C_DEF_SUMMARY = {C_SUMMARY:
                      {C_FILE_COUNT: 0,
                       C_ANALYZED_COUNT: 0,
                       C_TOTAL_REPO: 0,
+                      C_TOTAL_SRC_LOC: 0,
+                      C_TOTAL_SINGLE_COMMENTS_LOC: 0,
+                      C_TOTAL_SINGLE_DOCSTRINGS_LOC: 0,
+                      C_TOTAL_DOUBLE_DOCSTRINGS_LOC: 0,
+                      C_TOTAL_BLANK_LOC: 0,
+                      C_TOTAL_COMMENTS_LOC: 0,
+                      C_TOTAL_LINE_COUNT: 0,
                       C_TOTAL_CAT: {NAMES: 0, INDENTS: 0, TABS: 0,
                                     LENGTH: 0, BLANKS: 0, IMPORTS: 0}}}
 
@@ -90,6 +104,13 @@ def reset_summary():
                          {C_FILE_COUNT: 0,
                           C_ANALYZED_COUNT: 0,
                           C_TOTAL_REPO: 0,
+                          C_TOTAL_SRC_LOC: 0,
+                          C_TOTAL_SINGLE_COMMENTS_LOC: 0,
+                          C_TOTAL_SINGLE_DOCSTRINGS_LOC: 0,
+                          C_TOTAL_DOUBLE_DOCSTRINGS_LOC: 0,
+                          C_TOTAL_BLANK_LOC: 0,
+                          C_TOTAL_COMMENTS_LOC: 0,
+                          C_TOTAL_LINE_COUNT: 0,
                           C_TOTAL_CAT: {NAMES: 0, INDENTS: 0, TABS: 0,
                                         LENGTH: 0, BLANKS: 0, IMPORTS: 0}}}
     return C_DEF_SUMMARY
@@ -249,6 +270,14 @@ def check_recursive_tree_contents(contents, local_path_partial, repo):
                 for a, b in chain(curr.items(), new.items()):
                     temp[a] = curr[a] + b
                 master_results[C_SUMMARY][C_TOTAL_CAT] = temp
+
+                master_results[C_SUMMARY][C_TOTAL_SRC_LOC] += file_results[FILE_RESULTS_DICT]["src_loc_analysis"]
+                master_results[C_SUMMARY][C_TOTAL_BLANK_LOC] += file_results[FILE_RESULTS_DICT]["blank_loc_analysis"]
+                master_results[C_SUMMARY][C_TOTAL_SINGLE_COMMENTS_LOC] += file_results[FILE_RESULTS_DICT]["single_comments_loc_analysis"]
+                master_results[C_SUMMARY][C_TOTAL_SINGLE_DOCSTRINGS_LOC] += file_results[FILE_RESULTS_DICT]["single_docstring_loc_analysis"]
+                master_results[C_SUMMARY][C_TOTAL_DOUBLE_DOCSTRINGS_LOC] += file_results[FILE_RESULTS_DICT]["double_docstring_loc_analysis"]
+                master_results[C_SUMMARY][C_TOTAL_COMMENTS_LOC] += file_results[FILE_RESULTS_DICT]["total_comments_loc_analysis"]
+                master_results[C_SUMMARY][C_TOTAL_LINE_COUNT] += file_results[FILE_RESULTS_DICT]["line_count_analysis"]
     master_results[C_SUMMARY][C_FILE_COUNT] = file_count
     master_results[C_SUMMARY][C_ANALYZED_COUNT] = analyzed_count
     return master_results

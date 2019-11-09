@@ -18,6 +18,7 @@ The following dependencies are necessary to run the python project.
 * [pymongo](https://api.mongodb.com/python/current/)
 * [pycodestyle](https://pypi.org/project/pycodestyle/)   
 * [pytest](https://docs.pytest.org/en/latest/)
+* [python-loc-counter](https://github.com/BryceV/python_loc_counter/)
 
 These dependencies can be installed to a Python pipenv.
 Install these dependencies from the Pipfile with the command   
