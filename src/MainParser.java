@@ -1,19 +1,19 @@
 import org.json.JSONException;
 
 public class MainParser {
-	public static final String gitURL = "https://github.com/janani-sridhar/CaesarCipher";
-	public static final String directory = "/Users/jananisridhar/Desktop/CC";
-	public static final String localFile = "./RandomFile.java";
-
-	public static FileParser fp;
-	public static JSONifySummary summary;
+//	public static final String gitURL = "https://github.com/janani-sridhar/CaesarCipher";
+//	public static final String directory = "/Users/jananisridhar/Desktop/CC";
+//	public static final String localFile = "./RandomFile.java";
+//
+//	public static FileParser fp;
+//	public static JSONifySummary summary;
 	
 	public static void main(String[] args) throws JSONException {
 		//summary = new JSONifySummary();
 		//fp = new FileParser(summary);
-		RepoTraversal tester = new RepoTraversal();
+		RepoTraversal traverser = new RepoTraversal();
 
-		tester.findJavaFilesToParse();
+		traverser.findJavaFilesToParse();
 	}
 
 	/*public static void getGitFiles(String url, String directory) {
