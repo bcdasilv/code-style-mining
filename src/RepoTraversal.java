@@ -108,13 +108,6 @@ public class RepoTraversal {
     }
 
     private JSONObject traverseRepoForFileContent(String repoURL) {
-        /**
-         * delete
-         */
-        int count = 0;
-        /**
-         * End delete
-         */
         JSONObject repoAnalysis;
         try {
             ArrayList<UrlFilepathPair> urls = traverseTreeForFileURLs(repoURL);
@@ -275,7 +268,7 @@ public class RepoTraversal {
         try{
             BufferedReader br = new BufferedReader(new FileReader(repoURLsPath));
             String line;
-            while((line = br.readLine()) != null)   {
+            while((line = br.readLine()) != null && line.length()>0)   {
                 if (line.charAt(0) == '#') {
                     System.out.println("Skipping " + line + " repo");
                     continue;
