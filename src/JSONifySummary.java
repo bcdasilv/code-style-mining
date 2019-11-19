@@ -3,6 +3,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 /**
  * This class was created to provide a summary of the whole project.
@@ -43,7 +44,12 @@ public class JSONifySummary {
     private Integer blankLinesFailed;
     private Integer blankLinesPassed;
     private String repoUrl;
-    private Integer linesOfCodes;
+    private Integer LOCSourceCode;
+    private Integer LOCSingleComments;
+    private Integer LOCMultComments;
+    private Integer LOCTotalComments;
+    private Integer LOCBlankLines;
+    private Integer LOCTotalLines;
     private Integer totalFiles;
     private Integer totalJavaFiles;
     private Integer totalImportWilcards;
@@ -86,7 +92,12 @@ public class JSONifySummary {
         this.blankLinesFailed = 0;
         this.blankLinesPassed = 0;
         this.repoUrl = "";
-        this.linesOfCodes = 0;
+        this.LOCSourceCode = 0;
+        this.LOCSingleComments = 0;
+        this.LOCMultComments = 0;
+        this.LOCTotalComments = 0;
+        this.LOCBlankLines = 0;
+        this.LOCTotalLines = 0;
         this.totalImportWilcards = 0;
         this.individual_summary = new JSONObject();
         this.count = 0;
@@ -102,8 +113,31 @@ public class JSONifySummary {
         }
     }
 
-    public void addLinesOfCode(Integer lines) {
-        linesOfCodes += lines;
+    public void addLOCMetrics(Map<String, Integer> LOCMetrics) {
+        for (Map.Entry mapElement : LOCMetrics.entrySet()) {
+            String key = (String)mapElement.getKey();
+            int value = (Integer)mapElement.getValue();
+            switch(key) {
+                case "LOCSourceCode":
+                    LOCSourceCode += value;
+                    break;
+                case "LOCSingleComments":
+                    LOCSingleComments += value;
+                    break;
+                case "LOCMultComments":
+                    LOCMultComments += value;
+                    break;
+                case "LOCTotalComments":
+                    LOCTotalComments += value;
+                    break;
+                case "LOCBlankLines":
+                    LOCBlankLines += value;
+                    break;
+                case "LOCTotalLines":
+                    LOCTotalLines += value;
+                    break;
+            }
+        }
     }
 
     public JSONObject getRepoErrorSummary() throws JSONException {
@@ -194,7 +228,12 @@ public class JSONifySummary {
             finalSummary.put("fieldsNamingLowerSnake", fieldsNamingLowerSnake);
             finalSummary.put("fieldsNamingGoogle", fieldsNamingGoogle);
             finalSummary.put("repoUrl", repoUrl);
-            finalSummary.put("linesOfCodes", linesOfCodes);
+            finalSummary.put("LOCSourceCode", LOCSourceCode);
+            finalSummary.put("LOCSingleComments", LOCSingleComments);
+            finalSummary.put("LOCMultComments", LOCMultComments);
+            finalSummary.put("LOCTotalComments", LOCTotalComments);
+            finalSummary.put("LOCBlankLines", LOCBlankLines);
+            finalSummary.put("LOCTotalLines", LOCTotalLines);
             finalSummary.put("totalFiles", totalFiles);
         } catch (JSONException e) {
             e.printStackTrace();
@@ -495,10 +534,6 @@ public class JSONifySummary {
 
     public String getRepoUrl() {
         return repoUrl;
-    }
-
-    public Integer getLinesOfCodes() {
-        return linesOfCodes;
     }
 
     public Integer getTotalFiles() {

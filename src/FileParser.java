@@ -52,10 +52,14 @@ public class FileParser {
 		this.repoURL = repoURL;
 		FileInputStream in = null;
 		String[] linesOfFile = null;
+		Map<String, Integer> LOCMetrics = null;
+		
 		try {
 			in = new FileInputStream(new File(tempFilePath));
 			linesOfFile = ph.readLines(tempFilePath);
-			summary.addLinesOfCode(linesOfFile.length);
+			LOCCounter counter = new LOCCounter(tempFilePath);
+			LOCMetrics = counter.getLOC();
+			summary.addLOCMetrics(LOCMetrics);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -99,7 +103,7 @@ public class FileParser {
 		}
 		// add each file to the summary class
 		//returns JSONObject with details for files
-		JSONObject results = jsonify.JSONify(repoURL, filePath);
+		JSONObject results = jsonify.JSONify(repoURL, filePath, LOCMetrics);
 		summary.addObject(results);
 	}
 	

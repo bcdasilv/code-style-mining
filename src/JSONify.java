@@ -3,6 +3,7 @@ import org.json.JSONObject;
 
 import java.io.FileWriter;
 import java.util.ArrayList;
+import java.util.Map;
 
 public class JSONify {
     private FileParser fp;
@@ -12,7 +13,7 @@ public class JSONify {
         this.fp = fp;
     }
 
-    public JSONObject JSONify(String repoURL, String filePath) {
+    public JSONObject JSONify(String repoURL, String filePath, Map<String, Integer> LOCMetrics) {
         String repoURLowner = repoURL.split("/repos/")[1];
 
         JSONObject obj = new JSONObject();
@@ -21,6 +22,13 @@ public class JSONify {
             // file-specific attributes
             obj.put("import", fp.wildCard);
             obj.put("package", fp.packageDecName);
+            //loc metrics
+            for (Map.Entry mapElement : LOCMetrics.entrySet()) {
+                String key = (String)mapElement.getKey();
+                int value = (int)mapElement.getValue();
+                //System.out.println(key + " : " + value);
+                obj.put(key, value);
+            }
 
             // class attributes
             obj.put("repoURL", repoURLowner);
