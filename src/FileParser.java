@@ -1,7 +1,13 @@
 import java.io.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 
 import com.github.javaparser.JavaParser;
+import com.github.javaparser.ParseProblemException;
+import com.github.javaparser.ParserConfiguration;
+import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.ImportDeclaration;
 import com.github.javaparser.ast.NodeList;
@@ -42,7 +48,7 @@ public class FileParser {
 		jsonify = new JSONify(this);
 	}
 	
-	public void parseFile(String repoURL, String filePath, JSONifySummary summary) {
+	public void parseFile(String repoURL, String filePath, JSONifySummary summary) throws ParseProblemException {
 		this.repoURL = repoURL;
 		FileInputStream in = null;
 		String[] linesOfFile = null;
@@ -57,7 +63,9 @@ public class FileParser {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		CompilationUnit cu = JavaParser.parse(in);
+		//StaticJavaParser.getConfiguration().setPreprocessUnicodeEscapes(true);
+
+		CompilationUnit cu = StaticJavaParser.parse(in);
 		// look for asterisks in import statements and parse package declaration
 		wildCardPresent(cu);
 		parsePkgDec(cu);
