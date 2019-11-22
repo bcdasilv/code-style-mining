@@ -230,6 +230,7 @@ public class RepoTraversal {
             URL url = new URL(urlString);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestProperty("Authorization", "Bearer " + authToken);
+            conn.setRequestProperty("User-Agent", "code-style-mining");
             conn.setRequestProperty("Content-Type","application/json");
             conn.setDoOutput(true);
             conn.setDoInput(true);
