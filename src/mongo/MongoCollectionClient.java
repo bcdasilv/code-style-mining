@@ -46,7 +46,7 @@ public class MongoCollectionClient {
 
     public static MongoCollectionClient getInstance() {
         if (client == null)
-            return new MongoCollectionClient();
+            client = new MongoCollectionClient();
         return client;
     }
 
