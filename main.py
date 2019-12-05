@@ -31,14 +31,14 @@ def read_from_file(file_name, output_setting, mdb_name, mdb_password, mdb_cluste
         owner = temp[0]
         repo = temp[1]
         try:
-            if check_duplicate_repo(owner, repo):
+            if output_setting != 'm' or check_duplicate_repo(owner, repo):
                 results = analyze_repo(owner, repo)
-                handle_output(output_setting, results, mdb_name,
-                              mdb_password, mdb_cluster, mdb_database, mdb_collection)
+                handle_output(output_setting, results, mdb_name, mdb_password, mdb_cluster, mdb_database, mdb_collection)
             else:
                 print("The " + repo + " repository by " + owner + " has already been analyzed and uploaded to MongoDB. "
-                                      "Skipping analysis of this repository.")
-            infile_analyzed.write(lines[i]); #here we might be adding duplicate entries on the analyzed file
+                                                                  "Skipping analysis of this repository.")
+
+            infile_analyzed.write(lines[i])  # here we might be adding duplicate entries on the analyzed file
         except SyntaxError as e:
             print_err_msg(owner, repo, "SyntaxError", e.msg)
             infile_error.write(lines[i])
@@ -81,6 +81,10 @@ def handle_output(setting, results, mdb_name, mdb_password, mdb_cluster, mdb_dat
     else:
         raise ValueError("Unrecognized handle_output setting")
 
+def testTerminate (input):
+    if input == "q":
+        sys.exit()
+
 # Input and output will both be in the console, unless cmdline args specify otherwise
 def main(argv):
     oauth_token = None
@@ -91,20 +95,28 @@ def main(argv):
     mdb_database = None
     mdb_collection = None
 
-    input_setting = "c"
-    output_setting = "c"
-    usage_msg = "Usage: python3 main.py <GitHub_OAuth_token> [-file <file_name>] " \
+    usage_msg = "Usage (credentials after flags must match) (not recommended for credentials): " \
+                "python3 main.py [-gittoken <GitHub_OAuth_token>] [-file <file_name>] " \
                 "[-mongodb <username> <password> <cluster> <database> <collection>]"
 
-    if len(argv) == 9:
-        oauth_token = argv[0]
+    # Test for command line credentials
+    if len(argv) != 0:
+        try:
+            token_index = argv.index("-authtoken")
+        except ValueError:
+            pass
+        else:
+            try:
+                oauth_token = argv[token_index + 1]
+            except IndexError:
+                print(usage_msg)
+                return
 
         try:
             file_cmd_index = argv.index("-file")
         except ValueError:
             pass
         else:
-            input_setting = "f"
             try:
                 file_name = argv[file_cmd_index + 1]
             except IndexError:
@@ -116,7 +128,6 @@ def main(argv):
         except ValueError:
             pass
         else:
-            output_setting = "m"
             try:
                 mdb_name = argv[mongodb_cmd_index + 1]
                 mdb_password = argv[mongodb_cmd_index + 2]
@@ -126,7 +137,11 @@ def main(argv):
             except IndexError:
                 print(usage_msg)
                 return
-    elif os.path.exists('pythonAnalysis.properties'):
+    else:
+        print("No command line args found...")
+
+    # Test for config file credentials. Does not override if put into args
+    if os.path.exists('pythonAnalysis.properties'):
         print("")
         try:
             file = open('pythonAnalysis.properties', 'r')
@@ -134,50 +149,75 @@ def main(argv):
             while line:
                 conf_line = [l.strip() for l in line.split('=')]
                 line = file.readline()
-                if conf_line[0] == "authToken":
+                if conf_line[0] == "authToken" and oauth_token is None:
                     oauth_token = conf_line[1]
-                elif conf_line[0] == "repoURLsPath":
+                elif conf_line[0] == "repoURLsPath" and file_name is None:
                     file_name = conf_line[1]
-                elif conf_line[0] == "mongoUsername":
+                elif conf_line[0] == "mongoUsername" and mdb_name is None:
                     mdb_name = conf_line[1]
-                elif conf_line[0] == "mongoPassword":
+                elif conf_line[0] == "mongoPassword" and mdb_password is None:
                     mdb_password = conf_line[1]
-                elif conf_line[0] == "mongoUrl":
+                elif conf_line[0] == "mongoUrl" and mdb_cluster is None:
                     mdb_cluster = conf_line[1]
-                elif conf_line[0] == "mongoDatabase":
+                elif conf_line[0] == "mongoDatabase" and mdb_database is None:
                     mdb_database = conf_line[1]
-                elif conf_line[0] == "mongoCollection":
+                elif conf_line[0] == "mongoCollection" and mdb_collection is None:
                     mdb_collection = conf_line[1]
 
             file.close()
-            input_setting = "f"
-            output_setting = "m"
         except IOError:
             pass
-
     else:
-        input_setting = None
-        output_setting = None
+        print("No pythonAnalysis.properties file found...")
 
-        print("No pythonAnalysis.properties file or insufficient command line arguments given.")
+    # Start checking for missing credentials and ask for input how to run the program
+    input_setting = None
+    output_setting = None
 
-        if output_setting not in ('m', 'c'):
-            output_setting = input("Output setting: Would you like to write the "
-                                   "results to MongoDB [m] or print them to the console [c]? ")
-            output_setting.lower()
-        if output_setting == "m":
-            mdb_name = input("MongoDB username: ")
-            mdb_password = input("MongoDB password: ")
-            mdb_cluster = input("MongoDB cluster: ")
-            mdb_database = input("MongoDB database: ")
-            mdb_collection = input("MongoDB collection: ")
-        if input_setting not in ('f', 'c'):
-            input_setting = input("Input setting: Would you like to read the "
-                                  "repos from a file [f] or from the console [c]? ")
-            input_setting.lower()
-        print()
-        if input_setting == "f":
-            file_name = input("File name: ")
+    if oauth_token is None:
+        oauth_token = input("Missing necessary github token. Type it in (not recommended) or type [q] to exit: ").strip()
+        print("\n")
+        testTerminate(oauth_token.lower())
+
+    while input_setting not in ('f', 'c'):
+        input_setting = input("Input setting: Read the repo names from a file [f] or "
+                              "from the console [c] or type [q] to exit: ").strip()
+        print("\n")
+        input_setting = input_setting.lower()
+        testTerminate(input_setting)
+
+    if input_setting == "f" and file_name is None:
+        file_name = input("File name: ").strip()
+
+    while output_setting not in ('m', 'c'):
+        output_setting = input("Output setting: Would you like to write the "
+                               "results to MongoDB [m] or print them to the console [c] or quit [q]: ").strip()
+        print("\n")
+        output_setting = output_setting.lower()
+        testTerminate(output_setting)
+
+    while output_setting == "m" and ((mdb_name is None) or (mdb_password is None) or (mdb_cluster is None) or (mdb_database is None) or (mdb_collection is None)):
+        print("Missing several monogoDB credentials. Input them (not recommended) or type q to quit")
+        if mdb_name is None:
+            i = input("MongoDB username: ").strip()
+            mdb_name = i if i is not "" else None
+            testTerminate(i.lower())
+        if mdb_password is None:
+            i = input("MongoDB password: ").strip()
+            mdb_password = i if i is not "" else None
+            testTerminate(i.lower())
+        if mdb_cluster is None:
+            i = input("MongoDB cluster: ").strip()
+            mdb_cluster = i if i is not "" else None
+            testTerminate(i.lower())
+        if mdb_database is None:
+            i = input("MongoDB database: ").strip()
+            mdb_database = i if i is not "" else None
+            testTerminate(i.lower())
+        if mdb_collection is None:
+            i = input("MongoDB collection: ").strip()
+            mdb_collection = i if i is not "" else None
+            testTerminate(i.lower())
 
     set_oauth_token(oauth_token)
     config.mongo_name = mdb_name
@@ -188,19 +228,16 @@ def main(argv):
 
     if input_setting == "c":
         # TODO: got to be a better way to do this
-        print("Enter \">quit\" for the Owner name when you would like to exit the program.")
+        print("Enter [>quit] for the Owner name when you would like to exit the program.")
 
         repeat = None
         while repeat != "n":
-            owner = input("\nOwner name: ")
+            owner = input("\nOwner name: ").strip()
             if owner == '>quit':
                 break
-            repo = input("Repository name: ")
+            repo = input("Repository name: ").strip()
             try:
-                if check_duplicate_repo(owner, repo):
-                    results = analyze_repo(owner, repo)
-                else:
-                    print("Skipping repo "+owner+"/"+repo+". Already in database.")
+                results = analyze_repo(owner, repo)
             except SyntaxError as e:
                 print_err_msg(owner, repo, "SyntaxError", e.msg)
             except UnicodeDecodeError as u:
