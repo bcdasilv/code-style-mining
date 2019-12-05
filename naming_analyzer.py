@@ -28,10 +28,12 @@ GOOGLE = "google"
 PEP = "pep"
 OCCURS = "occurrences"
 
+
 class FuncLister(ast.NodeVisitor):
     def visit_FunctionDef(self, node):
         collect_function_names(node.name)
         self.generic_visit(node)
+
     def visit_ClassDef(self, node):
         collect_class_names(node.name)
         self.generic_visit(node)
@@ -57,13 +59,16 @@ def check_name_style(s):
         else:
             return MIXED
 
+
 def collect_class_names(name):
     global CLASS_NAMES
     CLASS_NAMES.append(name)
 
+
 def collect_function_names(name):
     global FUNC_NAMES
     FUNC_NAMES.append(name)
+
 
 def check_class_names():
     pep = True
@@ -75,6 +80,7 @@ def check_class_names():
             google = False
             count += 1
     return pep, google, count
+
 
 def check_function_names():
     pep_temp = True
@@ -88,6 +94,7 @@ def check_function_names():
             count_temp += 1
     return pep_temp, google_temp, count_temp
 
+
 def collect_json_dict(classes, funcs):
     count = 0
     d = {CLASSES: {COUNT: len(CLASS_NAMES), PEP: classes[TUP_PEP],
@@ -98,6 +105,7 @@ def collect_json_dict(classes, funcs):
         count += d[key][OCCURS]
     return d, count
 
+
 def naming_results(file_name):
     with open(file_name, "r") as f:
         tree = ast.parse(f.read())
@@ -106,10 +114,12 @@ def naming_results(file_name):
     funcs = check_function_names()
     return collect_json_dict(classes, funcs)
 
+
 def cleanup():
     global CLASS_NAMES, FUNC_NAMES
     CLASS_NAMES = []
     FUNC_NAMES = []
+
 
 def check_input(str):
     temp = str
@@ -123,11 +133,13 @@ def check_input(str):
             if s in temp:
                 raise ValueError(msg)
 
+
 def main(argv):
     file_name = argv[0]
     check_input(file_name)
     print(json.dumps(naming_results(file_name)))
     return naming_results(file_name)
+
 
 if __name__ == '__main__':
     main(sys.argv[1:])

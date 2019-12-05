@@ -11,9 +11,11 @@ from repo_analyzer import C_REPO_FULL_NAME, C_REPO_NAME, LOCAL_PATH, \
 from verify_repo_mongo import check_duplicate_repo
 import naming_analyzer as naming
 
+
 def print_err_msg(owner, repo, err_type, msg):
     print("{} in {}'s {} repository: {}".format(err_type, owner, repo, msg))
     print("The repository has been skipped.")
+
 
 # Analyze the list of repositories in an input file
 # Lines that are empty or begin with a space or pound character will be skipped
@@ -48,6 +50,7 @@ def read_from_file(file_name, output_setting, mdb_name, mdb_password, mdb_cluste
         # Remove the local clone of the file directories
         delete_local_tree_clone(LOCAL_PATH + "/" + repo)
 
+
 # Write data to a cluster's database with a specific collection name
 # Authenticate with given username and password
 def write_to_mongodb(mongodb_user, mongodb_password, cluster, db_name, coll_name, data):
@@ -60,6 +63,7 @@ def write_to_mongodb(mongodb_user, mongodb_password, cluster, db_name, coll_name
     mongo_id = coll.insert_one(data)
 
     return mongo_id
+
 
 # Either write results to MongoDB if setting is "m" or print to the console if setting is "c"
 # Name, password, cluster, and database parameters can be None if setting is "c"
@@ -81,9 +85,11 @@ def handle_output(setting, results, mdb_name, mdb_password, mdb_cluster, mdb_dat
     else:
         raise ValueError("Unrecognized handle_output setting")
 
+
 def testTerminate (input):
     if input == "q":
         sys.exit()
+
 
 # Input and output will both be in the console, unless cmdline args specify otherwise
 def main(argv):

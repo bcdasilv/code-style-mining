@@ -115,6 +115,7 @@ def reset_summary():
                                         LENGTH: 0, BLANKS: 0, IMPORTS: 0}}}
     return C_DEF_SUMMARY
 
+
 # work around function to bring summary to top level without major analysis refactoring
 def summary_top_level(repo_analysis):
     summary = repo_analysis[C_REPO_ANALYSIS][C_SUMMARY]
@@ -122,10 +123,12 @@ def summary_top_level(repo_analysis):
     del repo_analysis[C_REPO_ANALYSIS][C_SUMMARY]
     return repo_analysis
 
+
 # Set the GitHub OAuth TOKEN used for get requests
 def set_oauth_token(oauth):
     global TOKEN
     TOKEN = oauth
+
 
 # Make the get request from the GitHub v3 REST API
 def make_get_request(url):
@@ -136,27 +139,34 @@ def make_get_request(url):
     else:
         return resp
 
+
 def repo_url(owner, repo):
     return BASE_URL + "/repos/" + owner + "/" + repo
+
 
 def get_repo(owner, repo):
     url = repo_url(owner, repo)
     return make_get_request(url)
 
+
 def get_branch(owner, repo, branch):
     branch_url = repo_url(owner, repo) + "/branches/" + branch
     return make_get_request(branch_url)
+
 
 def get_tree(owner, repo, sha):
     tree_url = repo_url(owner, repo) + "/git/trees/" + sha
     return make_get_request(tree_url)
 
+
 def get_tree_recursive(owner, repo, sha):
     tree_url = repo_url(owner, repo) + "/git/trees/" + sha + "?recursive=1"
     return make_get_request(tree_url)
 
+
 def get_file(url):
     return make_get_request(url)
+
 
 # Return file contents without newlines
 # (Newlines ust be removed for proper decoding later)
@@ -180,6 +190,7 @@ def delete_local_tree_clone(path):
         shutil.rmtree(path)
     except FileNotFoundError:
         pass
+
 
 # Returns a dictionary of the Login, Node ID, URL, HTML URL, and Type
 # Used for Owner and Organization objects
@@ -281,6 +292,7 @@ def check_recursive_tree_contents(contents, local_path_partial, repo):
     master_results[C_SUMMARY][C_FILE_COUNT] = file_count
     master_results[C_SUMMARY][C_ANALYZED_COUNT] = analyzed_count
     return master_results
+
 
 # Query a repo from GitHub and run the analyzer on the default branch of the repo
 def analyze_repo(owner, repo):
