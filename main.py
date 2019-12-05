@@ -86,8 +86,8 @@ def handle_output(setting, results, mdb_name, mdb_password, mdb_cluster, mdb_dat
         raise ValueError("Unrecognized handle_output setting")
 
 
-def testTerminate (input):
-    if input == "q":
+def test_termination(user_input):
+    if user_input == "q":
         sys.exit()
 
 
@@ -183,14 +183,14 @@ def main(argv):
     if oauth_token is None:
         oauth_token = input("Missing necessary github token. Type it in (not recommended) or type [q] to exit: ").strip()
         print("\n")
-        testTerminate(oauth_token.lower())
+        test_termination(oauth_token.lower())
 
     while input_setting not in ('f', 'c'):
         input_setting = input("Input setting: Read the repo names from a file [f] or "
                               "from the console [c] or type [q] to exit: ").strip()
         print("\n")
         input_setting = input_setting.lower()
-        testTerminate(input_setting)
+        test_termination(input_setting)
 
     if input_setting == "f" and file_name is None:
         file_name = input("File name: ").strip()
@@ -200,30 +200,30 @@ def main(argv):
                                "results to MongoDB [m] or print them to the console [c] or quit [q]: ").strip()
         print("\n")
         output_setting = output_setting.lower()
-        testTerminate(output_setting)
+        test_termination(output_setting)
 
     while output_setting == "m" and ((mdb_name is None) or (mdb_password is None) or (mdb_cluster is None) or (mdb_database is None) or (mdb_collection is None)):
         print("Missing several monogoDB credentials. Input them (not recommended) or type q to quit")
         if mdb_name is None:
             i = input("MongoDB username: ").strip()
             mdb_name = i if i is not "" else None
-            testTerminate(i.lower())
+            test_termination(i.lower())
         if mdb_password is None:
             i = input("MongoDB password: ").strip()
             mdb_password = i if i is not "" else None
-            testTerminate(i.lower())
+            test_termination(i.lower())
         if mdb_cluster is None:
             i = input("MongoDB cluster: ").strip()
             mdb_cluster = i if i is not "" else None
-            testTerminate(i.lower())
+            test_termination(i.lower())
         if mdb_database is None:
             i = input("MongoDB database: ").strip()
             mdb_database = i if i is not "" else None
-            testTerminate(i.lower())
+            test_termination(i.lower())
         if mdb_collection is None:
             i = input("MongoDB collection: ").strip()
             mdb_collection = i if i is not "" else None
-            testTerminate(i.lower())
+            test_termination(i.lower())
 
     set_oauth_token(oauth_token)
     config.mongo_name = mdb_name
