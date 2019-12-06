@@ -6,6 +6,8 @@ import pymongo
 import config
 import os.path
 
+from load_repo_options import load_top_keyword_repos, get_top_500_repos
+
 from repo_analyzer import C_REPO_FULL_NAME, C_REPO_NAME, LOCAL_PATH, \
     analyze_repo, delete_local_tree_clone, set_oauth_token, reset_summary
 from verify_repo_mongo import check_duplicate_repo
@@ -27,6 +29,75 @@ def read_from_file(file_name, output_setting, mdb_name, mdb_password, mdb_cluste
     # lines is having multiple file names appending to it on case of execution failure
     for i in range(len(lines)):
         if lines[i].startswith("#") or lines[i].startswith(" ")\
+                or lines[i] == "" or lines[i] == "\n":
+            continue
+        temp = re.split("/|\n", lines[i])
+        owner = temp[0]
+        repo = temp[1]
+        try:
+            if output_setting != 'm' or check_duplicate_repo(owner, repo):
+                results = analyze_repo(owner, repo)
+                handle_output(output_setting, results, mdb_name, mdb_password, mdb_cluster, mdb_database, mdb_collection)
+            else:
+                print("The " + repo + " repository by " + owner + " has already been analyzed and uploaded to MongoDB. "
+                                                                  "Skipping analysis of this repository.")
+
+            infile_analyzed.write(lines[i])  # here we might be adding duplicate entries on the analyzed file
+        except SyntaxError as e:
+            print_err_msg(owner, repo, "SyntaxError", e.msg)
+            infile_error.write(lines[i])
+        except UnicodeDecodeError as u:
+            print_err_msg(owner, repo, "UnicodeDecodeError", u.reason)
+            infile_error.write(lines[i])
+        # Remove the local clone of the file directories
+        delete_local_tree_clone(LOCAL_PATH + "/" + repo)
+
+
+def read_from_options(output_setting, mdb_name, mdb_password, mdb_cluster, mdb_database, mdb_collection):
+    infile_error = open("error.txt", 'a')
+    infile_analyzed = open("analyzed.txt", 'a')
+    number_repos = None
+    chosen_option = None
+    lines = None
+
+    while chosen_option not in ('k', 's'):
+        chosen_option = input("What kind of repos do you want to analyze? By keywords [k] or by most number of "
+                              "stars [s] or quit program [q]: ").strip()
+        chosen_option = chosen_option.lower()
+        print("\n")
+        test_termination(chosen_option)
+
+    keyword_list = []
+    if chosen_option == 'k':
+        c = input("Input your own keywords [y]? Or let use ours [n]?").strip()
+
+        if c == 'y':
+            while True:
+                word = input("Add a Keyword ([c] to continue): ").strip()
+                if word == 'c':
+                    break
+                keyword_list.append(word)
+
+    if number_repos is None:
+        try:
+            number_repos = int(input("How many repos do you want to fetch "
+                                     "(default: runs as long as it can or is stopped): ").strip())
+            print("\n")
+        except ValueError:
+            number_repos = None
+
+    if chosen_option == 'k':
+        # If list is empty, it will default to our repo_keywords
+        lines = load_top_keyword_repos(number_repos, keyword_list)
+    elif chosen_option == 's':
+        lines = get_top_500_repos(number_repos)
+
+    print(lines)
+    #sys.exit()
+
+    # lines is having multiple file names appending to it on case of execution failure
+    for i in range(len(lines)):
+        if lines[i].startswith("#") or lines[i].startswith(" ") \
                 or lines[i] == "" or lines[i] == "\n":
             continue
         temp = re.split("/|\n", lines[i])
@@ -78,10 +149,10 @@ def handle_output(setting, results, mdb_name, mdb_password, mdb_cluster, mdb_dat
         except pymongo.errors.DuplicateKeyError:
             print("The {} repository has already been analyzed and uploaded to MongoDB. "
                   "To update the analysis, delete the existing results from MongoDB "
-                  "first.".format(results[C_REPO_NAME]))
+                  "first.".format(results[C_REPO_NAME]), flush=True)
         else:
             print("Finished analyzing " + results[C_REPO_NAME]
-                  + " repository. Wrote results to MongoDB.")
+                  + " repository. Wrote results to MongoDB.", flush=True)
     else:
         raise ValueError("Unrecognized handle_output setting")
 
@@ -185,16 +256,6 @@ def main(argv):
         print("\n")
         test_termination(oauth_token.lower())
 
-    while input_setting not in ('f', 'c'):
-        input_setting = input("Input setting: Read the repo names from a file [f] or "
-                              "from the console [c] or type [q] to exit: ").strip()
-        print("\n")
-        input_setting = input_setting.lower()
-        test_termination(input_setting)
-
-    if input_setting == "f" and file_name is None:
-        file_name = input("File name: ").strip()
-
     while output_setting not in ('m', 'c'):
         output_setting = input("Output setting: Would you like to write the "
                                "results to MongoDB [m] or print them to the console [c] or quit [q]: ").strip()
@@ -232,6 +293,16 @@ def main(argv):
     config.mongo_database = mdb_database
     config.mongo_cluster = mdb_cluster
 
+    while input_setting not in ('f', 'c', 'o'):
+        input_setting = input("Input setting: Read the repo names from a file [f] or "
+                              "from the console [c] or from options [o] or type [q] to exit: ").strip()
+        print("\n")
+        input_setting = input_setting.lower()
+        test_termination(input_setting)
+
+    if input_setting == "f" and file_name is None:
+        file_name = input("File name: ").strip()
+
     if input_setting == "c":
         # TODO: got to be a better way to do this
         print("Enter [>quit] for the Owner name when you would like to exit the program.")
@@ -254,7 +325,8 @@ def main(argv):
 
             # Remove the local clone of the file directories
             delete_local_tree_clone(LOCAL_PATH + "/" + repo)
-
+    elif input_setting == 'o':
+        read_from_options(output_setting, mdb_name, mdb_password, mdb_cluster, mdb_database, mdb_collection)
     elif input_setting == "f":
         read_from_file(file_name, output_setting, mdb_name, mdb_password, mdb_cluster, mdb_database, mdb_collection)
 

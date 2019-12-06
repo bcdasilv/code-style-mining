@@ -296,7 +296,7 @@ def check_recursive_tree_contents(contents, local_path_partial, repo):
 
 # Query a repo from GitHub and run the analyzer on the default branch of the repo
 def analyze_repo(owner, repo):
-    print("\nAnalyzing " + owner + "'s " + repo + " repository...")
+    print("\nAnalyzing " + owner + "'s " + repo + " repository...", flush=True)
 
     # Get the repo
     repo_resp = get_repo(owner, repo)
