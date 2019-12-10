@@ -80,7 +80,8 @@ def read_from_options(output_setting, mdb_name, mdb_password, mdb_cluster, mdb_d
 
     if number_repos is None:
         try:
-            number_repos = int(input("How many repos do you want to fetch "
+            number_repos = int(input("How many repos do you want to fetch from github "
+                                     "(final analyzed count might be different then this number) "
                                      "(default: runs as long as it can or is stopped): ").strip())
             print("\n")
         except ValueError:
@@ -173,7 +174,7 @@ def main(argv):
     mdb_collection = None
 
     usage_msg = "Usage (credentials after flags must match) (not recommended for credentials): " \
-                "python3 main.py [-gittoken <GitHub_OAuth_token>] [-file <file_name>] " \
+                "python3 main.py [-authtoken <GitHub_OAuth_token>] [-file <file_name>] " \
                 "[-mongodb <username> <password> <cluster> <database> <collection>]"
 
     # Test for command line credentials
