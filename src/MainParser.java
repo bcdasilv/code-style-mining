@@ -107,7 +107,8 @@ public class MainParser {
 			}
 		} else {
 			while (limitRepos == null) {
-				System.out.print("How many repos do you want to fetch? Enter one or [q] to quit: ");
+				System.out.print("How many repos do you want to fetch (final results might not match this number)?" +
+						" Enter one or [q] to quit: ");
 				String s = reader.nextLine().trim();
 				System.out.print("\n");
 				testTermination(s.toLowerCase());
