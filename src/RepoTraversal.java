@@ -9,13 +9,12 @@ import org.json.JSONObject;
 import util.UrlFilepathPair;
 
 import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 
 public class RepoTraversal {
     private long numFiles;
     private long numJavaFiles;
+    private GitHubFetcher fetcher = new GitHubFetcher();
 
     public RepoTraversal() {
     }
@@ -120,7 +119,7 @@ public class RepoTraversal {
             JSONifySummary repoSummary = new JSONifySummary(numFiles, numJavaFiles);
             //UrlFilepathPair contains the blob url and the file path of the blob
             for(UrlFilepathPair url : urls) {
-                JSONObject content = makeGetRequest(url.getRepoBlobUrl());
+                JSONObject content = fetcher.makeGetRequest(url.getRepoBlobUrl());
                 String contentStr = content.getString("content");
                 contentStr = contentStr.replaceAll("\n", "");
                 decodeAndParseFile(contentStr, repoURL, url.getFilePath(), repoSummary);
@@ -166,7 +165,7 @@ public class RepoTraversal {
         try {
             JSONObject treeObj = getTreeObjectFromRepo(repoURL);
             String treeURL = treeObj.getString("url");
-            JSONObject tree = makeGetRequest(treeURL + "?recursive=1");
+            JSONObject tree = fetcher.makeGetRequest(treeURL + "?recursive=1");
             JSONArray array = getJSONArrayByKey(tree, "tree");
 
             for(int i = 0; i < array.length(); i++) {
@@ -189,7 +188,7 @@ public class RepoTraversal {
 
     private JSONObject getTreeObjectFromRepo(String url) throws CustomException {
         try {
-            JSONObject response = makeGetRequest(url);
+            JSONObject response = fetcher.makeGetRequest(url);
             String[] keys = new String[] { "commit", "commit", "tree" };
             return recurseForJSONObject(response, keys);
         } catch(Exception e) {
@@ -228,45 +227,6 @@ public class RepoTraversal {
         return object;
     }
 
-    public JSONObject makeGetRequest(String urlString) throws CustomException {
-        try {
-            String authToken = Config.getAuthToken();
-            URL url = new URL(urlString);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestProperty("Authorization", "Bearer " + authToken);
-            conn.setRequestProperty("User-Agent", "code-style-mining");
-            conn.setRequestProperty("Content-Type","application/json");
-            conn.setDoOutput(true);
-            conn.setDoInput(true);
-            conn.setRequestMethod("GET");
-
-            BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-            String inputLine;
-            StringBuffer response = new StringBuffer();
-
-            while((inputLine = in.readLine()) != null) {
-                response.append(inputLine + "\n");
-            }
-            in.close();
-            return new JSONObject(response.toString());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        throw new CustomException("Could not make get request.");
-    }
-
-    public String getDefaultBranch(String url) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("/branches/");
-        try {
-            JSONObject response = makeGetRequest(url);
-            sb.append(response.getString("default_branch"));
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
-        return sb.toString();
-    }
-
     private ArrayList<String> getRepoURLsFromConfig() {
         String repoURLsPath = Config.getRepoURLsPath();
         ArrayList<String> urls = new ArrayList<>();
@@ -281,7 +241,7 @@ public class RepoTraversal {
                 StringBuilder sb = new StringBuilder();
                 sb.append("https://api.github.com/repos/");
                 sb.append(line);
-                sb.append(getDefaultBranch(sb.toString()));
+                sb.append(fetcher.getDefaultBranch(sb.toString()));
                 urls.add(sb.toString());
             }
             br.close();
