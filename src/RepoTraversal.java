@@ -1,24 +1,20 @@
-import java.io.*;
-
-import com.mongodb.DBCursor;
 import com.mongodb.client.FindIterable;
 import config.Config;
 import mongo.MongoCollectionClient;
+import org.apache.commons.codec.binary.Base64;
 import org.bson.Document;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import java.util.ArrayList;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import org.apache.commons.codec.binary.Base64;
 import util.UrlFilepathPair;
 
-import javax.print.Doc;
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.ArrayList;
 
 public class RepoTraversal {
-    private static final Config config = Config.getInstance();
-    private static final String tempFilePath = config.getTempJavaFilePath();
+    private static final String tempFilePath = Config.getTempJavaFilePath();
 
     private long numFiles;
     private long numJavaFiles;
@@ -44,7 +40,7 @@ public class RepoTraversal {
     private void markFileAsDone(String repoName, ArrayList<String> repoURLS) {
         ArrayList<String> lines = new ArrayList<String>();
         try {
-            String repoListPath = config.getRepoURLsPath();
+            String repoListPath = Config.getRepoURLsPath();
             BufferedReader br = new BufferedReader(new FileReader(repoListPath));
             String line;
             while ((line = br.readLine()) != null) {
@@ -226,7 +222,7 @@ public class RepoTraversal {
 
     private JSONObject makeGetRequest(String urlString) throws CustomException {
         try {
-            String authToken = config.getAuthToken();
+            String authToken = Config.getAuthToken();
             URL url = new URL(urlString);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestProperty("Authorization", "Bearer " + authToken);
@@ -264,7 +260,7 @@ public class RepoTraversal {
     }
 
     private ArrayList<String> getRepoURLsFromConfig() {
-        String repoURLsPath = config.getRepoURLsPath();
+        String repoURLsPath = Config.getRepoURLsPath();
         ArrayList<String> urls = new ArrayList<>();
         try{
             BufferedReader br = new BufferedReader(new FileReader(repoURLsPath));
