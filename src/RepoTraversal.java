@@ -14,16 +14,22 @@ import java.net.URL;
 import java.util.ArrayList;
 
 public class RepoTraversal {
-    private static final String tempFilePath = Config.getTempJavaFilePath();
-
     private long numFiles;
     private long numJavaFiles;
 
     public RepoTraversal() {
     }
 
-    public void findJavaFilesToParse() {
-        ArrayList<String> repoURLs = getRepoURLsFromConfig();
+    public void findJavaFilesToParse(String inputType, Integer limitRepos) {
+        ArrayList<String> repoURLs;
+
+        if (inputType.equals("f")) {
+            repoURLs = getRepoURLsFromConfig();
+        } else {
+            GetRepoNames getRepoNames = new GetRepoNames();
+            repoURLs = getRepoNames.getReposByStars(limitRepos);
+        }
+
         int count = 0;
         for(String url : repoURLs) {
             System.out.println("Analyzing " + url + " (" + (++count) + "/" + repoURLs.size() + ")");
@@ -31,7 +37,9 @@ public class RepoTraversal {
             if (result != null) {
                 insertRepoSummary(result);
                 String repoName = url.split("/repos/")[1].split("/branches")[0];
-                markFileAsDone(repoName, repoURLs);
+                if (inputType.equals("f")) {
+                    markFileAsDone(repoName, repoURLs);
+                }
                 System.out.println("Finished analyzing " + url+ " (" + (count) + "/" + repoURLs.size() + ")");
             }
         }
@@ -81,7 +89,7 @@ public class RepoTraversal {
         FileOutputStream fos = null;
         File file;
         try {
-            file = new File(tempFilePath);
+            file = new File(Config.getTempJavaFilePath());
             if(!file.exists()) {
                 file.createNewFile();
             }
@@ -220,7 +228,7 @@ public class RepoTraversal {
         return object;
     }
 
-    private JSONObject makeGetRequest(String urlString) throws CustomException {
+    public JSONObject makeGetRequest(String urlString) throws CustomException {
         try {
             String authToken = Config.getAuthToken();
             URL url = new URL(urlString);
@@ -247,7 +255,7 @@ public class RepoTraversal {
         throw new CustomException("Could not make get request.");
     }
 
-    private String getDefaultBranch(String url) {
+    public String getDefaultBranch(String url) {
         StringBuilder sb = new StringBuilder();
         sb.append("/branches/");
         try {

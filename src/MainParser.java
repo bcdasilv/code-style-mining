@@ -29,6 +29,7 @@ public class MainParser {
 	public static void main(String[] args) throws JSONException {
 		//summary = new JSONifySummary();
 		//fp = new FileParser(summary);
+		RepoTraversal traverser = new RepoTraversal();
 		Scanner reader = new Scanner(System.in);
 
 		Map<String, String> configMap = new HashMap<>();
@@ -48,11 +49,17 @@ public class MainParser {
 						.configure(params.properties().setFileName("javaAnalysis.properties"));
 		try {
 			Configuration config = builder.getConfiguration();
+			String temp;
+			//Properties not found will remain null
+			temp = config.getString("tempJavaFilePath");
+			configMap.put("tempJavaFilePath", (temp !=null)? temp.replaceAll("\"", "") : null);
+			temp = config.getString("tempJSONFilePath");
+			configMap.put("tempJSONFilePath", (temp !=null)? temp.replaceAll("\"", "") : null);
+			temp = config.getString("authToken");
+			configMap.put("authToken", (temp !=null)? temp.replaceAll("\"", "") : null);
+			temp = config.getString("repoURLsPath");
+			configMap.put("repoURLsPath", (temp !=null)? temp.replaceAll("\"", "") : null);
 
-			configMap.put("tempJavaFilePath", config.getString("tempJavaFilePath").replaceAll("\"", ""));
-			configMap.put("tempJSONFilePath", config.getString("tempJSONFilePath").replaceAll("\"", ""));
-			configMap.put("authToken", config.getString("authToken").replaceAll("\"", ""));
-			configMap.put("repoURLsPath", config.getString("repoURLsPath").replaceAll("\"", ""));
 			configMap.put("mongoUsername", config.getString("mongoUsername"));
 			configMap.put("mongoPassword", config.getString("mongoPassword"));
 			configMap.put("mongoUrl", config.getString("mongoUrl"));
@@ -64,8 +71,13 @@ public class MainParser {
 			//e.printStackTrace();
 		}
 
+		//Ask for missing creds via the CL (exception for filename)
 		for (Map.Entry<String, String> entry : configMap.entrySet()) {
 			String key = entry.getKey();
+
+			if (key.equals("repoURLsPath")) {
+				continue;
+			}
 
 			while (configMap.get(key) == null || configMap.get(key).isEmpty()) {
 				System.out.print("Missing " + key + ". Enter one or [q] to quit: ");
@@ -76,13 +88,42 @@ public class MainParser {
 			}
 		}
 
+		String inputType = "";
+		Integer limitRepos = null;
+		while (!inputType.equals("f") && !inputType.equals("g")) {
+			System.out.print("Do you want to get repo names from file [f] or generate them [g]. Enter one or [q] to quit: ");
+			inputType = reader.nextLine().trim();
+			System.out.print("\n");
+			testTermination(inputType.toLowerCase());
+		}
+
+		if (inputType.equals("f")) {
+			while (configMap.get("repoURLsPath") == null || configMap.get("repoURLsPath").isEmpty()) {
+				System.out.print("Missing repoURLsPath. Enter one or [q] to quit: ");
+				String s = reader.nextLine().trim();
+				System.out.print("\n");
+				testTermination(s.toLowerCase());
+				configMap.put("repoURLsPath", s);
+			}
+		} else {
+			while (limitRepos == null) {
+				System.out.print("How many repos do you want to fetch? Enter one or [q] to quit: ");
+				String s = reader.nextLine().trim();
+				System.out.print("\n");
+				testTermination(s.toLowerCase());
+				try {
+					limitRepos = Integer.parseInt(s);
+				} catch (NumberFormatException e) {
+					continue;
+				}
+			}
+		}
+
 		Config.init(configMap.get("authToken"), configMap.get("mongoUsername"), configMap.get("mongoPassword"),
 				configMap.get("mongoUrl"), configMap.get("mongoDatabase"), configMap.get("mongoCollection"),
 				configMap.get("tempJavaFilePath"), configMap.get("tempJSONFilePath"), configMap.get("repoURLsPath"));
 
-		RepoTraversal traverser = new RepoTraversal();
-
-		traverser.findJavaFilesToParse();
+		traverser.findJavaFilesToParse(inputType, limitRepos);
 	}
 
 	/*public static void getGitFiles(String url, String directory) {
