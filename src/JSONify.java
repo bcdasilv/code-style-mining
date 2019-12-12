@@ -7,7 +7,7 @@ import java.util.Map;
 
 public class JSONify {
     private FileParser fp;
-    private String tempJSONFilePath = Config.getInstance().getTempJSONFilePath();
+    private String tempJSONFilePath = Config.getTempJSONFilePath();
 
     public JSONify(FileParser fp) {
         this.fp = fp;

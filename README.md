@@ -4,7 +4,7 @@ This project aims at mining public software repositories on GitHub in order to m
 Properties file:
 The properties file provides a way to supply information for running the Java code without pushing private or unnecessary data to the repository.
 One needs to create a file called javaAnalysis.properties file in the same directory as the project (above src).
-The config.Config class communicates with this .properties file to supply information to the Java project.
+If information is left out but is necessary for running, it will ask for these on the command line.
 
 
 The structure of the .properties file is as follows (don't include the brackets):
