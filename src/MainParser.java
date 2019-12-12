@@ -7,6 +7,7 @@ import org.apache.commons.configuration2.builder.fluent.Parameters;
 import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.json.JSONException;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
@@ -90,6 +91,8 @@ public class MainParser {
 
 		String inputType = "";
 		Integer limitRepos = null;
+		ArrayList<String> keywords = new ArrayList<>();
+		String optionType = "";
 		while (!inputType.equals("f") && !inputType.equals("g")) {
 			System.out.print("Do you want to get repo names from file [f] or generate them [g]. Enter one or [q] to quit: ");
 			inputType = reader.nextLine().trim();
@@ -106,6 +109,28 @@ public class MainParser {
 				configMap.put("repoURLsPath", s);
 			}
 		} else {
+			while (!optionType.equals("s") && !optionType.equals("k")) {
+				System.out.print("Get repo names by top stars [s] or by keywords [k]. Enter one of these or [q] to quit: ");
+				optionType = reader.nextLine().trim();
+				System.out.print("\n");
+				testTermination(optionType.toLowerCase());
+			}
+			
+			if (optionType.equals("k")) {
+				String t = "";
+				while (!t.equals("c")) {
+					System.out.print("Enter keyword or [c] to continue: ");
+					t = reader.nextLine().trim();
+					System.out.print("\n");
+					if (t.equals("c")) {
+						break;
+					} else if (!t.isEmpty()){
+						keywords.add(t);
+					}
+				}
+				System.out.println("Using keywords: " + keywords);
+			}
+			
 			while (limitRepos == null) {
 				System.out.print("How many repos do you want to fetch (final results might not match this number)?" +
 						" Enter one or [q] to quit: ");
@@ -113,7 +138,9 @@ public class MainParser {
 				System.out.print("\n");
 				testTermination(s.toLowerCase());
 				try {
-					limitRepos = Integer.parseInt(s);
+					if (Integer.parseInt(s) >= 0) {
+						limitRepos = Integer.parseInt(s);
+					}
 				} catch (NumberFormatException e) {
 					continue;
 				}
@@ -124,7 +151,9 @@ public class MainParser {
 				configMap.get("mongoUrl"), configMap.get("mongoDatabase"), configMap.get("mongoCollection"),
 				configMap.get("tempJavaFilePath"), configMap.get("tempJSONFilePath"), configMap.get("repoURLsPath"));
 
-		traverser.findJavaFilesToParse(inputType, limitRepos);
+		//TODO might want to handle these options more dynamically.
+		// In some cases you dont need all of these put they are passed anyway
+		traverser.findJavaFilesToParse(inputType, optionType, limitRepos, keywords);
 	}
 
 	/*public static void getGitFiles(String url, String directory) {

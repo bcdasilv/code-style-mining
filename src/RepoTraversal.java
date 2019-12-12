@@ -19,14 +19,19 @@ public class RepoTraversal {
     public RepoTraversal() {
     }
 
-    public void findJavaFilesToParse(String inputType, Integer limitRepos) {
+    public void findJavaFilesToParse(String inputType, String optionType, Integer limitRepos, ArrayList<String> keywords) {
         ArrayList<String> repoURLs;
 
         if (inputType.equals("f")) {
             repoURLs = getRepoURLsFromConfig();
         } else {
             GetRepoNames getRepoNames = new GetRepoNames();
-            repoURLs = getRepoNames.getReposByStars(limitRepos);
+
+            if (optionType.equals("s")) {
+                repoURLs = getRepoNames.getReposByStars(limitRepos);
+            } else {
+                repoURLs = getRepoNames.getReposByKeywords(limitRepos, keywords);
+            }
         }
 
         int count = 0;
