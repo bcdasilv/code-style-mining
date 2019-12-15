@@ -1,6 +1,7 @@
 
 file_name = "v02.txt" #TODO: parameterize
 
+
 #TODO: clean up this code and make it more efficient
 def check_duplicate_repos():
     infile = open(file_name, 'r')
@@ -18,6 +19,7 @@ def check_duplicate_repos():
             duplicate = True
     return duplicate
 
+
 #TODO: It doesn't detect duplicates in the error section of the file
 def check_duplicate_line(line, lines, index):
     for i in range(index, len(lines)):
@@ -29,6 +31,7 @@ def check_duplicate_line(line, lines, index):
         if line.startswith(temp):
             return True
     return False
+
 
 def main():
     print("Starting checking...")

@@ -25,8 +25,8 @@ Install these dependencies from the Pipfile with the command
 ```pipenv install```   
 Start the pipenv with   
 ```pipenv shell```   
-Start the application   
-```python3 main.py <GitHub_OAuth_token> [-file <file_name>] [-mongodb <username> <password> <cluster> <database> <collection>]```
+Start the application from CLI (credentials after flags must match) (not recommended for credentials)
+```python3 main.py [-authtoken <GitHub_OAuth_token>] [-file <file_name>] [-mongodb <username> <password> <cluster> <database> <collection>]```
 
 OR  
 
@@ -37,4 +37,7 @@ mongoUsername = <mongodb username>
 mongoPassword = <mongodb password>  
 mongoUrl = <mongodb cluster>  
 mongoDatabase = <mongodb database name>    
-mongoCollection = <mongodb collection name>  
+mongoCollection = <mongodb collection name>
+
+It is possible to run this with some of these credentials missing. You can for instance, input the repos manually instead of using a file.
+Also, it is possible to run this script in several different ways. This will check for credentials in the CLI, then the properties file, then ask the user for the missing ones. If you want to re-type a certain credential for each run, we recommend leaving it out of the properties file.

@@ -24,11 +24,13 @@ BLANKS = "blank_lines"
 IMPORTS = "import"
 ENCODING = "file_encoding"
 
+
 def error_msg(report, prefix):
     msg = report.get_statistics(prefix)[0]
     index = msg.index(prefix)
     fin = msg[index+len(prefix)+1:]
     return fin
+
 
 # Template function to print information about types of errors found
 # Parameters:
@@ -84,17 +86,22 @@ def json_check_errors(counters, macro):
 def check_indents(counters, report):
     check_errors(counters, report, "Indentation", INDENT_ERRORS, "Indentations of")
 
+
 def check_tabs_spaces(counters, report):
     check_errors(counters, report, "Tabs vs. Spaces", TABS_SPACES_ERRORS, "Space-indented")
+
 
 def check_line_length(counters, report):
     check_errors(counters, report, "Line Length", LINE_LENGTH_ERRORS, "Line length of")
 
+
 def check_blank_lines(counters, report):
     check_errors(counters, report, "Blank Line", BLANK_LINE_ERRORS, "Blank line")
 
+
 def check_imports(counters, report):
     check_errors(counters, report, "Import Statement", IMPORT_ERRORS, "Import")
+
 
 # Create the dictionary of analysis result values to be converted into JSONa
 def create_json_dict(counters, file_name):
@@ -143,6 +150,7 @@ def collect_file_dict_results(file_name):
     naming.cleanup()
     return js
 
+
 def check_input(input_str):
     # TODO: double-check this function
     temp = input_str
@@ -165,6 +173,7 @@ def main(argv):
     res = temp[0]
     print(json.dumps(res))
     return res
+
 
 if __name__ == '__main__':
     main(sys.argv[1:])
