@@ -128,7 +128,9 @@ def read_from_options(output_setting, mdb_name, mdb_password, mdb_cluster, mdb_d
 def write_to_mongodb(mongodb_user, mongodb_password, cluster, db_name, coll_name, data):
     client = pymongo.MongoClient(
         "mongodb+srv://" + mongodb_user + ":" + mongodb_password +
-        "@" + cluster + "/test?retryWrites=true"
+        "@" + cluster + "/python-analysis?retryWrites=true" +
+        # "@" + cluster + "/test?retryWrites=true" +
+        "&w=majority&tls=true&tlsAllowInvalidCertificates=true"
     )
     db = client[db_name]
     coll = db[coll_name]
@@ -268,23 +270,23 @@ def main(argv):
         print("Missing several monogoDB credentials. Input them (not recommended) or type q to quit")
         if mdb_name is None:
             i = input("MongoDB username: ").strip()
-            mdb_name = i if i is not "" else None
+            mdb_name = i if i != "" else None
             test_termination(i.lower())
         if mdb_password is None:
             i = input("MongoDB password: ").strip()
-            mdb_password = i if i is not "" else None
+            mdb_password = i if i != "" else None
             test_termination(i.lower())
         if mdb_cluster is None:
             i = input("MongoDB cluster: ").strip()
-            mdb_cluster = i if i is not "" else None
+            mdb_cluster = i if i != "" else None
             test_termination(i.lower())
         if mdb_database is None:
             i = input("MongoDB database: ").strip()
-            mdb_database = i if i is not "" else None
+            mdb_database = i if i != "" else None
             test_termination(i.lower())
         if mdb_collection is None:
             i = input("MongoDB collection: ").strip()
-            mdb_collection = i if i is not "" else None
+            mdb_collection = i if i != "" else None
             test_termination(i.lower())
 
     set_oauth_token(oauth_token)
