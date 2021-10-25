@@ -5,6 +5,9 @@ import shutil
 from collections import defaultdict
 from datetime import datetime
 from itertools import chain
+from time import sleep
+import time
+import json
 
 import requests
 import file_analyzer
@@ -130,12 +133,37 @@ def set_oauth_token(oauth):
     TOKEN = oauth
 
 
-# Make the get request from the GitHub v3 REST API
+# Sleeps the program until the GitHub API rate limit of 5000 API calls per hour
+# or the rate limit of 30 API calls per minute is reset.
+def reached_api_rate_limit(headers):
+    resp = requests.get("https://api.github.com/rate_limit", headers=headers)
+    resp_JSON = json.loads(resp.content)
+    if resp_JSON["resources"]["core"]["remaining"] == 0:
+        reset_time = resp_JSON["resources"]["core"]["reset"]
+        current_time = int(time.time())
+        sleep_time = (reset_time - current_time)
+        if sleep_time > 0:
+            sleep_time += (5 * 60)  # add 5 minutes to make sure prog. sleeps long enough
+            print(
+                f'reached api rate limit of 5000 per hour.. sleeping for \
+                    {sleep_time} seconds ({sleep_time/60} minutes)'
+            )
+            sleep(sleep_time)
+
+    elif resp_JSON["resources"]["search"]["remaining"] == 0:
+        print(
+            f'reached API search rate limit of 30 per minute... \
+            sleeping for 60 seconds (1 minute)'
+        )
+        sleep(60)
+
+
 def make_get_request(url):
     headers = {"Authorization": "TOKEN " + TOKEN}
     resp = requests.get(url, headers=headers)
-    if resp.status_code != 200:
-        raise ConnectionError('GET {} {}'.format(url[len(BASE_URL):], resp.status_code))
+    if resp.status_code == 403:
+        reached_api_rate_limit(headers)
+        make_get_request(url)
     else:
         return resp
 
