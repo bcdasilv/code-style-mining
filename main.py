@@ -128,8 +128,7 @@ def read_from_options(output_setting, mdb_name, mdb_password, mdb_cluster, mdb_d
 def write_to_mongodb(mongodb_user, mongodb_password, cluster, db_name, coll_name, data):
     client = pymongo.MongoClient(
         "mongodb+srv://" + mongodb_user + ":" + mongodb_password +
-        "@" + cluster + "/python-analysis?retryWrites=true" +
-        # "@" + cluster + "/test?retryWrites=true" +
+        "@" + cluster + "/test?retryWrites=true" +
         "&w=majority&tls=true&tlsAllowInvalidCertificates=true"
     )
     db = client[db_name]

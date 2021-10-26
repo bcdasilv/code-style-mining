@@ -13,7 +13,6 @@ def get_client():
     else:
         return pymongo.MongoClient(
             "mongodb+srv://" + mongo_name + ":" + mongo_password +
-            "@" + mongo_cluster + "/python-analysis?retryWrites=true" +
-            # "@" + mongo_cluster + "/test?retryWrites=true" +
+            "@" + mongo_cluster + "/test?retryWrites=true" +
             "&w=majority&tls=true&tlsAllowInvalidCertificates=true"
         )
