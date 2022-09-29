@@ -25,12 +25,11 @@ public class MongoCollectionClient {
     private static final Integer port = 27017;
 
     private MongoCollectionClient() {
-        Config mdbConfig = Config.getInstance();
-        String database = mdbConfig.getMongoDatabase();
-        String username = mdbConfig.getMongoUsername();
-        String password = mdbConfig.getMongoPassword();
-        String url = mdbConfig.getMongoUrl();
-        String collection = mdbConfig.getMongoCollection();
+        String database = Config.getMongoDatabase();
+        String username = Config.getMongoUsername();
+        String password = Config.getMongoPassword();
+        String url = Config.getMongoUrl();
+        String collection = Config.getMongoCollection();
         try {
             MongoClientURI uri = new MongoClientURI(
                     "mongodb+srv://"+username+":"+password+"@"+url+"/test?retryWrites=true");

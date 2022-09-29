@@ -1,13 +1,4 @@
-import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-
-import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseProblemException;
-import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.ImportDeclaration;
@@ -18,6 +9,10 @@ import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import config.Config;
 import org.json.JSONObject;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.util.*;
 
 public class FileParser {
 	// Parser objects -- for calling methods in other classes
@@ -38,8 +33,7 @@ public class FileParser {
 	protected ArrayList<MethodWhiteSpaceResults> methodWPs = new ArrayList<>();
 	protected NameResults nr = new NameResults();
 
-	private static final Config config = Config.getInstance();
-	private static final String tempFilePath = config.getTempJavaFilePath();
+	private static final String tempFilePath = Config.getTempJavaFilePath();
 
 	private JSONify jsonify;
 
