@@ -5,3 +5,4 @@ target/
 javaAnalysis.properties
 .idea/
 *.iml
+*.properties
