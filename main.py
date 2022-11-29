@@ -43,6 +43,14 @@ def read_from_file(file_name, output_setting, mdb_name, mdb_password, mdb_cluste
                                                                   "Skipping analysis of this repository.")
 
             infile_analyzed.write(lines[i])  # here we might be adding duplicate entries on the analyzed file
+        except KeyError as k:
+            msg = f'Error with key {k}'
+            print_err_msg(owner, repo, "KeyError", msg)
+            infile_error.write(lines[i])
+        except AttributeError as a:
+            msg = f'Error with Attribute {a}'
+            print_err_msg(owner, repo, "AttributeError", msg)
+            infile_error.write(lines[i])
         except SyntaxError as e:
             print_err_msg(owner, repo, "SyntaxError", e.msg)
             infile_error.write(lines[i])
@@ -128,7 +136,8 @@ def read_from_options(output_setting, mdb_name, mdb_password, mdb_cluster, mdb_d
 def write_to_mongodb(mongodb_user, mongodb_password, cluster, db_name, coll_name, data):
     client = pymongo.MongoClient(
         "mongodb+srv://" + mongodb_user + ":" + mongodb_password +
-        "@" + cluster + "/test?retryWrites=true" +
+        "@" + cluster + "/python-analysis?retryWrites=true" +
+        # "@" + cluster + "/test?retryWrites=true" +
         "&w=majority&tls=true&tlsAllowInvalidCertificates=true"
     )
     db = client[db_name]

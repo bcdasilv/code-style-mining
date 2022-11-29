@@ -29,6 +29,20 @@ SETTINGS = {
     MDB_COLL: None
 }
 
+ORIGOAUTH = "orig_oauth_token"
+ALTOAUTH1 = "alt_oauth_1"
+ALT1USED = "alt_oauth_1_used"
+ALTOAUTH2 = "alt_oauth_2"
+ALT2USED = "alt_oauth_2_used"
+
+TOKENS = {
+    ORIGOAUTH: None,
+    ALTOAUTH1: None,
+    ALT1USED: False,
+    ALTOAUTH2: None,
+    ALT2USED: False
+}
+
 # GH Keys
 FULL_NAME = "full_name"
 DEFAULT_BRANCH = "default_branch"
@@ -145,6 +159,10 @@ def get_settings():
                 SETTINGS[MDB_DB] = conf_line[1]
             elif conf_line[0] == "mongoCollection":
                 SETTINGS[MDB_COLL] = conf_line[1]
+            elif conf_line[0] == "ALTOAUTH1":
+                TOKENS[ALTOAUTH1] = conf_line[1]
+            elif conf_line[0] == "ALTOAUTH2":
+                TOKENS[ALTOAUTH2] = conf_line[1]
         file.close()
         return check_settings()
     print("No javaInfo.properties file found...")
@@ -162,6 +180,24 @@ def set_settings():
 # Sleeps the program until the GitHub API rate limit of 5000 API calls per hour
 # or the rate limit of 30 API calls per minute is reset.
 def reached_api_rate_limit(headers):
+    if TOKENS[ORIGOAUTH] is None:
+        TOKENS[ORIGOAUTH] = SETTINGS[OAUTH]
+        SETTINGS[OAUTH] = TOKENS[ALTOAUTH1]
+        TOKENS[ALT1USED] = True
+        print('switched to alt oauth token 1...')
+        return
+    elif TOKENS[ALT1USED] is True and TOKENS[ALT2USED] is False:
+        SETTINGS[OAUTH] = TOKENS[ALTOAUTH2]
+        TOKENS[ALT2USED] = True
+        print('switched to alt oauth token 2...')
+        return
+    elif TOKENS[ALT1USED] is True and TOKENS[ALT2USED] is True:
+        SETTINGS[OAUTH] = TOKENS[ORIGOAUTH]
+        TOKENS[ORIGOAUTH] = None
+        TOKENS[ALT1USED] = False
+        TOKENS[ALT2USED] = False
+        print('switched to orig oauth token...')
+
     resp = requests.get(f'{BASE_URL}/rate_limit', headers=headers)
     resp_JSON = json.loads(resp.content)
     if resp_JSON["resources"]["core"]["remaining"] == 0:
@@ -224,7 +260,10 @@ def get_repo_files(owner, repo):
     if resp.status_code != 200:
         return False
     repo_files = json.loads(resp.content)[TREE]
+    print(f'\t ... {len(repo_files)} files to get')
     for i in range(len(repo_files)):
+        if i > 0 and i % 1000 == 0:
+            print(f'\t ... got {i} files so far')
         reset_file_info()
         rf = repo_files[i]
         if rf[FILE_TYPE] == "blob":
@@ -263,28 +302,32 @@ if __name__ == '__main__':
             temp = re.split("/|\n", java_repos[i])
             owner = temp[0]
             repo = temp[1]
-            print(f'getting info for {owner}\'s repo: {repo}')
+            print(f'getting info for {owner}\'s repo: {repo} ({i + 1}/{len(java_repos)})')
             if check_duplicate_repo(owner, repo):
                 url = f'{BASE_URL}/repos/{owner}/{repo}'
                 resp = make_get_request(url)
 
                 if resp.status_code != 200:
-                    print(f'error connecting to repo \n\n')
+                    print(f'error connecting to repo \n')
                     file_error.write(f'[REPO ERR] \t {owner}/{repo}\n')
                 else:
                     print(f'\t ... got general repo info.')
                     handle_repo_results(resp)
-                    if get_main_sha(owner, repo):
-                        print(f'\t ... got main SHA.')
-                        if get_repo_files(owner, repo):
-                            print(f'finished getting data for repo, writing data to mongo... \n\n')
-                            write_to_mongo()
-                            file_analyzed.write(f'{owner}/{repo}\n')
-                        else:
-                            print(f'error getting files \n\n')
-                            file_error.write(f'[FILE ERR] \t {owner}/{repo}\n')
-                    else:
-                        print(f'error getting main SHA \n\n')
-                        file_error.write(f'[SHA ERR] \t {owner}/{repo}\n')
+
+                    write_to_mongo()
+                    file_analyzed.write(f'{owner}/{repo}\n')
+
+                    # if get_main_sha(owner, repo):
+                    #     print(f'\t ... got main SHA.')
+                    #     if get_repo_files(owner, repo):
+                    #         print(f'\t ... finished getting data for repo, writing data to mongo... \n')
+                    #         write_to_mongo()
+                    #         file_analyzed.write(f'{owner}/{repo}\n')
+                    #     else:
+                    #         print(f'error getting files \n\n')
+                    #         file_error.write(f'[FILE ERR] \t {owner}/{repo}\n')
+                    # else:
+                    #     print(f'error getting main SHA \n\n')
+                    #     file_error.write(f'[SHA ERR] \t {owner}/{repo}\n')
             else:
-                print(f'Already have data for {repo} by {owner}, skipping...\n\n')
+                print(f'Already have data for {repo} by {owner}, skipping...\n')
