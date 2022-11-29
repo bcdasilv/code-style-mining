@@ -41,3 +41,20 @@ mongoCollection = <mongodb collection name>
 
 It is possible to run this with some of these credentials missing. You can for instance, input the repos manually instead of using a file.
 Also, it is possible to run this script in several different ways. This will check for credentials in the CLI, then the properties file, then ask the user for the missing ones. If you want to re-type a certain credential for each run, we recommend leaving it out of the properties file.
+
+
+## Data Analytics
+### Pulling data from MongoDB and Transforming the data from MongoDB to Google Sheets
+Download [**MongoDB Compass**](https://www.mongodb.com/products/compass) and connect it to the "**python-analysis**" database. In MongoDB Compass, you'll need to export half of the data as a .CSV and the other half as a .JSON. 
+
+For the .CSV file, export only the fields that are repository information (e.g. owner name, owner type, summary total_src_loc, etc.). This data does not to be transformed.
+
+For the .JSON file, add a new field "**repo_analysis**" to the Export Collection page and only export this new field. Once the file is exported, run the "**python_file_transform.py**" script. The .JSON file name is hard coded in the script so make sure the correct .JSON file name is entered. 
+
+When you have both .CSV files, add the data to the google sheets on Google Drive ("**Python Data Only**" Folder), following the [**schema**](https://dbdiagram.io/embed/61709fc66239e146477a93f8)
+
+
+### Connecting to Superset 
+Currently, the tables (google sheets) in the "**Python Data Only**" Folder from Google Drive are connected to [**Superset**](https://preset.io/). To connect more table(s) (google sheet(s)) to the database in Superset, add the google sheet(s) url to the database "**Python Analyzer Data**" (Data tab -> Database). Then, add the new table(s) as a dataset (Data tab --> datasets). 
+
+*Note: You need to be invited to the Senior Project group on Superset in order to interact with the data on Superset*
